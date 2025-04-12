@@ -7,11 +7,17 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[Assert\IsTrue(message: 'Vous devez accepter les conditions d\'utilisation')]
+    private bool $agreeTerms = false;
+
     public const USER_TYPE_FREELANCE = 'freelance';
     public const USER_TYPE_FORMATEUR = 'formateur';
     public const USER_TYPE_EMPLOYEUR = 'employeur';
@@ -23,18 +29,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100, minMessage: 'Le nom doit contenir au moins {{ limit }} caractères', maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères')]
+    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\-\s]+$/', message: 'Le nom ne doit contenir que des lettres, des tirets et des espaces')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100, minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères', maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères')]
+    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\-\s]+$/', message: 'Le prénom ne doit contenir que des lettres, des tirets et des espaces')]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(message: 'L\'email {{ value }} n\'est pas un email valide')]
+    #[Assert\Length(max: 150, maxMessage: 'L\'email ne peut pas dépasser {{ limit }} caractères')]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire')]
+    #[Assert\Length(min: 8, max: 4096, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères')]
+    #[Assert\Regex(pattern: '/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/', message: 'Le mot de passe doit contenir au moins 8 caractères, commencer par une majuscule et inclure au moins un chiffre')]
     private ?string $mot_de_passe = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Assert\NotBlank(message: 'Le type d\'utilisateur est obligatoire')]
+    #[Assert\Choice(choices: [self::USER_TYPE_FREELANCE, self::USER_TYPE_FORMATEUR, self::USER_TYPE_EMPLOYEUR], message: 'Veuillez choisir un type d\'utilisateur valide')]
     private ?string $type_utilisateur = null;
 
     #[ORM\Column(type: 'json')]
@@ -44,6 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(length: 15, nullable: true)]
+    #[Assert\Regex(pattern: '/^\+?[0-9]{10,15}$/', message: 'Le numéro de téléphone n\'est pas valide')]
     private ?string $telephone = null;
 
 
@@ -176,6 +195,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->mot_de_passe = $password;
+
+        return $this;
+    }
+
+    public function getAgreeTerms(): bool
+    {
+        return $this->agreeTerms;
+    }
+
+    public function setAgreeTerms(bool $agreeTerms): static
+    {
+        $this->agreeTerms = $agreeTerms;
 
         return $this;
     }

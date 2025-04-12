@@ -25,55 +25,16 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('prenom', TextType::class, [
-                'label' => 'Nom',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer votre nom',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 50,
-                        'minMessage' => 'Votre nom doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Votre nom ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
+                'label' => 'Nom'
             ])
             ->add('nom', TextType::class, [
-                'label' => 'Prénom',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer votre prénom',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 50,
-                        'minMessage' => 'Votre prénom doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Votre prénom ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
+                'label' => 'Prénom'
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer votre email',
-                    ]),
-                    new Email([
-                        'message' => 'L\'email {{ value }} n\'est pas un email valide.',
-                    ]),
-                ],
+                'label' => 'Email'
             ])
             ->add('telephone', TelType::class, [
-                'label' => 'Téléphone',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer votre numéro de téléphone',
-                    ]),
-                    new Regex([
-                        'pattern' => '/^\+?[0-9]{8,}$/',
-                        'message' => 'Le numéro de téléphone n\'est pas valide',
-                    ]),
-                ],
+                'label' => 'Téléphone'
             ])
 
             ->add('plainPassword', PasswordType::class, [
@@ -82,31 +43,11 @@ class RegistrationFormType extends AbstractType
                 'attr' => [
                     'autocomplete' => 'new-password',
                     'placeholder' => 'Ex: Abc12345'
-                ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
-                    ]),
-                    new Length([
-                        'min' => 8,
-                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères',
-                        'max' => 4096,
-                    ]),
-                    new Regex([
-                        'pattern' => '/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/',
-                        'message' => 'Le mot de passe doit contenir au moins 8 caractères, commencer par une majuscule et inclure au moins un chiffre',
-                    ]),
-                ],
-                'help' => 'Le mot de passe doit contenir au moins 8 caractères, commencer par une majuscule et inclure au moins un chiffre'
+                ]
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'J\'accepte les conditions d\'utilisation',
-                'mapped' => false,
-                'constraints' => [
-                    new IsTrue([
-                        'message' => 'Vous devez accepter les conditions d\'utilisation.',
-                    ]),
-                ],
+                'mapped' => false
             ])
             ->add('type_utilisateur', HiddenType::class, [
                 'mapped' => true,
