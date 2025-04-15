@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord administrateur{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-dashboard {
+            padding: 2rem;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .admin-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .admin-card h3 {
+            color: #4f46e5;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .admin-card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #7c3aed;
+        }
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .stats-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container admin-dashboard">
+        <div class="admin-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-3">Tableau de bord administrateur</h1>
+                    <p>Bienvenue, {{ app.user.prenom }} {{ app.user.nom }}! Vous êtes connecté en tant qu'administrateur.</p>
+                </div>
+                <div>
+                    <a href="{{ path('app_logout') }}" class="btn btn-light btn-lg logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="admin-card text-center">
+                    <div class="admin-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number">0</div>
+                    <div class="stats-label">Utilisateurs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card text-center">
+                    <div class="admin-card-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stats-number">0</div>
+                    <div class="stats-label">Projets</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card text-center">
+                    <div class="admin-card-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="stats-number">0</div>
+                    <div class="stats-label">Formations</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-card text-center">
+                    <div class="admin-card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="stats-number">0</div>
+                    <div class="stats-label">Messages</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="admin-card">
+                    <h3>Gestion des utilisateurs</h3>
+                    <p>Gérez les utilisateurs de la plateforme, leurs rôles et leurs permissions.</p>
+                    <a href="#" class="btn btn-primary">Gérer les utilisateurs</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="admin-card">
+                    <h3>Gestion des projets</h3>
+                    <p>Supervisez les projets en cours, validez les nouvelles offres et gérez les catégories.</p>
+                    <a href="#" class="btn btn-primary">Gérer les projets</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="admin-card">
+                    <h3>Gestion des formations</h3>
+                    <p>Administrez les formations disponibles, les formateurs et les inscriptions.</p>
+                    <a href="#" class="btn btn-primary">Gérer les formations</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="admin-card">
+                    <h3>Paramètres du site</h3>
+                    <p>Configurez les paramètres généraux du site, les options de paiement et les notifications.</p>
+                    <a href="#" class="btn btn-primary">Paramètres</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

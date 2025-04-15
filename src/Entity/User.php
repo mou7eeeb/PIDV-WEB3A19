@@ -45,9 +45,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire')]
-    #[Assert\Length(min: 8, max: 4096, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères')]
-    #[Assert\Regex(pattern: '/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/', message: 'Le mot de passe doit contenir au moins 8 caractères, commencer par une majuscule et inclure au moins un chiffre')]
+    #[Assert\Length(min: 6, max: 4096, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères')]
+    #[Assert\Regex(pattern: '/^(?=.*[A-Za-z])(?=.*[0-9]).{6,}$/', message: 'Le mot de passe doit contenir au moins une lettre et un chiffre')]
     private ?string $mot_de_passe = null;
 
     #[ORM\Column(length: 50, nullable: true)]
@@ -187,13 +186,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
+    /**
+     * Cette méthode est utilisée par Symfony pour la vérification du mot de passe
+     * Elle doit retourner le mot de passe hashé stocké dans mot_de_passe
+     * 
+     * @see PasswordAuthenticatedUserInterface
+     */
     public function getPassword(): string
     {
-        return $this->mot_de_passe;
+        // Cette méthode est CRUCIALE pour l'authentification
+        // Elle doit retourner le mot de passe hashé qui sera vérifié par Symfony
+        return (string) $this->mot_de_passe;
     }
 
     public function setPassword(string $password): static
     {
+        // Assurez-vous que le mot de passe est stocké dans le champ mot_de_passe
         $this->mot_de_passe = $password;
 
         return $this;

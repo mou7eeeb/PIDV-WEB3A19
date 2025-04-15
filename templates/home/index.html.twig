@@ -27,6 +27,50 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+  <style>
+    .user-welcome {
+      color: #4f46e5;
+      font-weight: 500;
+    }
+    
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      background-color: #ef4444;
+      color: white;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    
+    .btn-logout:hover {
+      background-color: #dc2626;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-login {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      background-color: transparent;
+      color: #4f46e5;
+      border: 1px solid #4f46e5;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    
+    .btn-login:hover {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: #4f46e5;
+    }
+  </style>
+
  
 
 <body class="index-page">
@@ -69,7 +113,19 @@
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted" href="{{ path('app_login') }}">Get Started</a>
+      {% if app.user %}
+        <div class="user-actions d-flex align-items-center">
+          <span class="user-welcome me-3">Bienvenue, {{ app.user.prenom }}</span>
+          <a class="btn-logout" href="{{ path('app_logout') }}">
+            <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+          </a>
+        </div>
+      {% else %}
+        <div class="auth-buttons">
+          <a class="btn-login me-2" href="{{ path('app_login') }}">Connexion</a>
+          <a class="btn-getstarted" href="{{ path('app_register') }}">Inscription</a>
+        </div>
+      {% endif %}
 
     </div>
   </header>

@@ -25,33 +25,56 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('prenom', TextType::class, [
-                'label' => 'Nom'
+                'label' => 'Prénom',
+                'required' => true
             ])
             ->add('nom', TextType::class, [
-                'label' => 'Prénom'
+                'label' => 'Nom',
+                'required' => true
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email'
+                'label' => 'Email',
+                'required' => true
             ])
             ->add('telephone', TelType::class, [
-                'label' => 'Téléphone'
+                'label' => 'Téléphone',
+                'required' => true
             ])
-
+            ->add('type_utilisateur', ChoiceType::class, [
+                'mapped' => true,
+                'label' => 'Type d\'utilisateur',
+                'choices' => [
+                    'Freelance' => User::USER_TYPE_FREELANCE,
+                    'Employeur' => User::USER_TYPE_EMPLOYEUR,
+                    'Formateur' => User::USER_TYPE_FORMATEUR,
+                    'Administrateur' => 'admin'
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'data' => User::USER_TYPE_FREELANCE
+            ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Mot de passe',
                 'mapped' => false,
+                'required' => true,
                 'attr' => [
                     'autocomplete' => 'new-password',
                     'placeholder' => 'Ex: Abc12345'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez entrer un mot de passe',
+                    ]),
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
+                        'max' => 4096,
+                    ])
                 ]
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'J\'accepte les conditions d\'utilisation',
                 'mapped' => false
-            ])
-            ->add('type_utilisateur', HiddenType::class, [
-                'mapped' => true,
-                'data' => User::USER_TYPE_FREELANCE
             ])
         ;
     }

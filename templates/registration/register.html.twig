@@ -929,10 +929,17 @@
                         </button>
                     </div>
 
-                    {{ form_start(registrationForm) }}
-                        {% if error is defined and error %}
-                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                        {% endif %}
+                    {# Affichage des messages flash #}
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
 
                         <div class="form-floating">
                             {{ form_widget(registrationForm.nom, {
@@ -977,17 +984,17 @@
 
                         <div class="form-floating">
                             {{ form_widget(registrationForm.plainPassword, {
-                                'attr': {
-                                    'class': 'form-control',
-                                    'placeholder': ' '
-                                }
+                                'attr': {'class': 'form-control', 'placeholder': ' ', 'required': 'required'}
                             }) }}
-                            {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
-                            <small class="form-text text-muted password-help">
+                            {{ form_label(registrationForm.plainPassword) }}
+                            <div class="invalid-feedback d-block">
+                                {{ form_errors(registrationForm.plainPassword) }}
+                            </div>
+                        </div>
+                        <small class="form-text text-muted password-help">
                                 <i class="fas fa-info-circle"></i>
                                 Format requis : Abc12345
                             </small>
-                        </div>
 
                         <div class="form-check">
                             {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
@@ -1100,41 +1107,9 @@
 
             // Validation à la soumission du formulaire
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                let isValid = true;
-                const errors = [];
-
-                // Valider tous les champs
-                form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="password"]').forEach(input => {
-                    if (!validateField(input)) {
-                        isValid = false;
-                        errors.push(`Le champ ${input.labels[0].textContent.trim()} est invalide`);
-                    }
-                });
-
-                // Valider le type d'utilisateur
-                if (!validateUserType()) {
-                    isValid = false;
-                    errors.push('Veuillez sélectionner un type d\'utilisateur');
-                }
-
-                // Valider les conditions d'utilisation
-                const agreeTerms = form.querySelector('input[name="registration_form[agreeTerms]"]');
-                if (!agreeTerms.checked) {
-                    isValid = false;
-                    errors.push('Vous devez accepter les conditions d\'utilisation');
-                    agreeTerms.closest('.form-check').classList.add('has-error');
-                } else {
-                    agreeTerms.closest('.form-check').classList.remove('has-error');
-                }
-
-                if (!isValid) {
-                    alertError.style.display = 'block';
-                    alertError.innerHTML = '<strong>Erreur :</strong><br>' + errors.join('<br>');
-                } else {
-                    alertError.style.display = 'none';
-                    form.submit();
-                }
+                // Ne pas empêcher la soumission du formulaire
+                // Laisser la validation côté serveur gérer les erreurs
+                return true;
             });
         });
     </script>
