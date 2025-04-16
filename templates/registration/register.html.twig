@@ -940,6 +940,7 @@
                     {% endfor %}
 
                     {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                        <input type="hidden" name="registration_form[type_utilisateur]" value="freelance">
 
                         <div class="form-floating">
                             {{ form_widget(registrationForm.nom, {

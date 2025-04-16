@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{% block title %}FreelanceConnect | Administration{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="FreelanceConnect" />
+    <meta name="description" content="Plateforme de mise en relation entre freelances et clients" />
+    <meta name="keywords" content="freelance, clients, projets, administration" />
+
+    {% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte-custom.css') }}" />
+    {% endblock %}
+  </head>
+
+  <body class="layout-fixed layout-navbar-fixed" data-overlayscrollbars-viewport="scrollbarHidden overflowXHidden overflowYScroll">
+    <div class="wrapper">
+      <nav class="app-header navbar navbar-expand bg-primary navbar-dark border-bottom-0 shadow-sm">
+        <div class="container-fluid">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <button type="button" class="nav-link" data-lte-toggle="sidebar">
+                <i class="bi bi-list"></i>
+              </button>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link" data-bs-toggle="dropdown">
+                <i class="bi bi-bell"></i>
+                <span class="navbar-badge badge text-bg-warning">15</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <span class="dropdown-item dropdown-header">15 Notifications</span>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <i class="bi bi-envelope me-2"></i> 4 nouveaux messages
+                  <span class="float-end text-muted text-sm">3 mins</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer">Voir toutes les notifications</a>
+              </div>
+            </li>
+            <li class="nav-item dropdown user-menu">
+              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <img src="{{ asset('assets/img/default-avatar.jpg') }}" class="user-image rounded-circle shadow" alt="User Image">
+                <span class="d-none d-md-inline">{{ app.user.nom }} {{ app.user.prenom }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <li class="user-header bg-primary">
+                  <img src="{{ asset('assets/img/default-avatar.jpg') }}" class="rounded-circle shadow" alt="User Image">
+                  <p>
+                    {{ app.user.nom }} {{ app.user.prenom }}
+                    <small>Membre depuis {{ app.user.dateInscription ? app.user.dateInscription|date('M. Y') : 'N/A' }}</small>
+                  </p>
+                </li>
+                <li class="user-footer">
+                  <a href="#" class="btn btn-default btn-flat">Profil</a>
+                  <a href="{{ path('app_logout') }}" class="btn btn-default btn-flat float-end">Déconnexion</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <aside class="app-sidebar bg-dark elevation-4">
+        <div class="sidebar-brand">
+          <a href="{{ path('app_admin_dashboard') }}" class="brand-link text-center bg-primary">
+            <span class="brand-text fw-bold text-white">FreelanceConnect</span>
+          </a>
+        </div>
+
+        <div class="sidebar-menu">
+          <nav class="mt-4">
+            <ul
+              class="nav nav-pills nav-sidebar flex-column nav-child-indent"
+              data-lte-toggle="treeview"
+              role="menu"
+              data-accordion="false"
+            >
+              <li class="nav-item">
+                <a href="{{ path('app_admin_dashboard') }}" class="nav-link {% if app.request.get('_route') == 'app_admin_dashboard' %}active{% endif %}">
+                  <i class="nav-icon bi bi-speedometer"></i>
+                  <p>Tableau de bord</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ path('admin_users') }}" class="nav-link {% if app.request.get('_route') == 'admin_users' %}active{% endif %}">
+                  <i class="nav-icon bi bi-people"></i>
+                  <p>Utilisateurs</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-kanban"></i>
+                  <p>Projets</p>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        {% block main %}{% endblock %}
+      </main>
+    </div>
+
+    {% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ asset('assets/js/adminlte.js') }}"></script>
+    <script src="{{ asset('assets/js/dashboard.js') }}"></script>
+    {% endblock %}
+  </body>
+</html>

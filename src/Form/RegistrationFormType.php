@@ -40,17 +40,8 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Téléphone',
                 'required' => true
             ])
-            ->add('type_utilisateur', ChoiceType::class, [
+            ->add('type_utilisateur', HiddenType::class, [
                 'mapped' => true,
-                'label' => 'Type d\'utilisateur',
-                'choices' => [
-                    'Freelance' => User::USER_TYPE_FREELANCE,
-                    'Employeur' => User::USER_TYPE_EMPLOYEUR,
-                    'Formateur' => User::USER_TYPE_FORMATEUR,
-                    'Administrateur' => 'admin'
-                ],
-                'expanded' => true,
-                'multiple' => false,
                 'data' => User::USER_TYPE_FREELANCE
             ])
             ->add('plainPassword', PasswordType::class, [
