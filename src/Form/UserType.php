@@ -17,10 +17,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 
+// Formulaire Symfony pour la gestion des utilisateurs
 class UserType extends AbstractType
 {
+    // Construction du formulaire utilisateur avec ses champs et contraintes
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        // Champ pour le nom
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
@@ -39,6 +42,7 @@ class UserType extends AbstractType
                     ]),
                 ],
             ])
+            // Champ pour le prénom
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'attr' => [
@@ -56,6 +60,7 @@ class UserType extends AbstractType
                     ]),
                 ],
             ])
+            // Champ pour l'email
             ->add('email', EmailType::class, [
                 'label' => 'Email',
                 'attr' => [
@@ -72,6 +77,7 @@ class UserType extends AbstractType
                     ]),
                 ],
             ])
+            // Champ pour le type d'utilisateur
             ->add('type_utilisateur', ChoiceType::class, [
                 'label' => 'Type d\'utilisateur',
                 'choices' => [
@@ -87,6 +93,7 @@ class UserType extends AbstractType
                     ]),
                 ],
             ])
+            // Champ pour le téléphone
             ->add('telephone', TelType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
@@ -98,14 +105,16 @@ class UserType extends AbstractType
             ])
         ;
 
-        // Ajouter le champ password avec une gestion conditionnelle
+        // Ajout dynamique du champ mot de passe selon le contexte (création ou édition)
+        // Écouteur d'événement pour ajouter le champ mot de passe dynamiquement
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $user = $event->getData();
             $form = $event->getForm();
 
-            // Le mot de passe est obligatoire pour un nouvel utilisateur
+            // Le champ mot de passe est obligatoire uniquement lors de la création d'un nouvel utilisateur
             $isRequired = !$user || null === $user->getId();
 
+            // Ajout du champ mot de passe au formulaire
             $form->add('password', PasswordType::class, [
                 'label' => 'Mot de passe',
                 'mapped' => false,
@@ -132,6 +141,7 @@ class UserType extends AbstractType
         });
     }
 
+    // Configuration des options du formulaire
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

@@ -19,8 +19,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
+// Contrôleur d'administration pour la gestion des utilisateurs
 class UserController extends AbstractController
 {
+    // Affiche la liste des utilisateurs et le formulaire de création
     #[Route('/users', name: 'admin_users')]
     public function index(Request $request, UserRepository $userRepository): Response
     {
@@ -40,6 +42,7 @@ class UserController extends AbstractController
         ]);
     }
 
+    // Traite la création d'un nouvel utilisateur via le formulaire
     #[Route('/user/new', name: 'admin_user_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $userPasswordHasher, LoggerInterface $logger): Response
     {
@@ -52,10 +55,10 @@ class UserController extends AbstractController
 
         $logger->info('Données du formulaire reçues', ['data' => $request->request->all()]);
 
-        // Validation manuelle
+        // Validation manuelle des champs du formulaire
         $errors = [];
         
-        // Champs requis
+        // Vérification des champs requis
         $requiredFields = ['nom', 'prenom', 'email', 'password', 'type_utilisateur'];
         foreach ($requiredFields as $field) {
             if (empty($request->request->get($field))) {
@@ -63,13 +66,13 @@ class UserController extends AbstractController
             }
         }
 
-        // Validation de l'email
+        // Validation du format de l'email
         $email = $request->request->get('email');
         if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'L\'adresse email n\'est pas valide.';
         }
 
-        // Vérifier si l'email existe déjà
+        // Vérification de l'unicité de l'email
         if (!empty($email)) {
             $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
             if ($existingUser) {
@@ -77,6 +80,7 @@ class UserController extends AbstractController
             }
         }
 
+        // Si aucune erreur, création de l'utilisateur
         if (empty($errors)) {
             try {
                 $user = new User();
@@ -88,7 +92,7 @@ class UserController extends AbstractController
                     $user->setTelephone($request->request->get('telephone'));
                 }
 
-                // Encode le mot de passe
+                // Encodage du mot de passe avant sauvegarde
                 $user->setMotDePasse(
                     $userPasswordHasher->hashPassword(
                         $user,
@@ -96,7 +100,7 @@ class UserController extends AbstractController
                     )
                 );
 
-                // Définir la date d'inscription
+                // Définition de la date d'inscription
                 $user->setDateInscription(new \DateTimeImmutable());
 
                 $entityManager->persist($user);
@@ -204,6 +208,7 @@ class UserController extends AbstractController
         }
     }
 
+    // API pour la modification d'un utilisateur via requête AJAX
     #[Route('/api/user/{id}/edit', name: 'api_user_edit', methods: ['POST'])]
     public function apiEditUser(
         Request $request,
@@ -281,6 +286,7 @@ class UserController extends AbstractController
         }
     }
 
+    // Suppression d'un utilisateur
     #[Route('/user/{id}/delete', name: 'admin_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {

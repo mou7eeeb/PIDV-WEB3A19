@@ -1,7 +1,10 @@
+{# Hérite du template principal #}
 {% extends 'base.html.twig' %}
 
+{# Titre de la page d'accueil #}
 {% block title %}Freelance Connecté - Votre plateforme de freelancing{% endblock %}
 
+{# Bloc pour les styles personnalisés #}
 {% block stylesheets %}
 {{ parent() }}
 <style>
@@ -12,14 +15,14 @@
     --secondary-light: #dc2626;
   }
   
-  /* Styles généraux */
+  /* Styles généraux pour la page d'accueil */
   body {
     font-family: 'Inter', sans-serif;
     color: #333;
     overflow-x: hidden;
   }
   
-  /* Header et navigation */
+  /* Header et navigation principale */
   .header {
     padding: 15px 0;
     transition: all 0.5s;
