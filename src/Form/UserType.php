@@ -75,9 +75,9 @@ class UserType extends AbstractType
             ->add('type_utilisateur', ChoiceType::class, [
                 'label' => 'Type d\'utilisateur',
                 'choices' => [
-                    'Admin' => 'admin',
-                    'Freelance' => 'freelance',
-                    'Client' => 'client',
+                    'Freelance' => User::USER_TYPE_FREELANCE,
+                    'Formateur' => User::USER_TYPE_FORMATEUR,
+                    'Employeur' => User::USER_TYPE_EMPLOYEUR,
                 ],
                 'attr' => ['class' => 'form-select'],
                 'row_attr' => ['class' => 'mb-3'],
@@ -113,6 +113,7 @@ class UserType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => $isRequired ? 'Entrez le mot de passe' : 'Laissez vide pour conserver l\'ancien',
+                    'autocomplete' => 'new-password'
                 ],
                 'row_attr' => ['class' => 'mb-3'],
                 'constraints' => $isRequired ? [
@@ -126,6 +127,7 @@ class UserType extends AbstractType
                         'maxMessage' => 'Le mot de passe ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ] : [],
+                'help' => !$isRequired ? 'Laissez ce champ vide si vous ne souhaitez pas modifier le mot de passe' : null,
             ]);
         });
     }

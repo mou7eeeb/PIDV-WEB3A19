@@ -6,13 +6,173 @@
 {% block breadcrumb %}Utilisateurs{% endblock %}
 
 {% block stylesheets %}
-{{ parent() }}
-<style>
-    .user-actions .btn {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte-custom.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-actions .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    async function updateUser(event, userId) {
+        try {
+            const form = document.getElementById(`editUserForm${userId}`);
+            if (!form) {
+                throw new Error('Formulaire non trouvé');
+            }
+
+            // Supprimer les anciennes alertes
+            form.querySelectorAll('.alert').forEach(alert => alert.remove());
+
+            // Désactiver le bouton de soumission
+            const submitButton = form.querySelector('button.btn-primary');
+            if (!submitButton) {
+                throw new Error('Bouton de soumission non trouvé');
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enregistrement...';
+
+            // Préparer les données
+            const formData = new FormData();
+            const fields = {
+                '_token': 'input[name="_token"]',
+                'nom': 'input[name="nom"]',
+                'prenom': 'input[name="prenom"]',
+                'email': 'input[name="email"]',
+                'password': 'input[name="password"]',
+                'type_utilisateur': 'select[name="type_utilisateur"]',
+                'telephone': 'input[name="telephone"]'
+            };
+
+            // Vérifier et ajouter chaque champ
+            for (const [key, selector] of Object.entries(fields)) {
+                const element = form.querySelector(selector);
+                if (!element) {
+                    throw new Error(`Champ ${key} non trouvé`);
+                }
+                formData.append(key, element.value);
+            }
+
+            // Construire l'URL
+            const url = `{{ path('admin_user_edit', {'id': '__USER_ID__'}) }}`.replace('__USER_ID__', userId);
+
+            // Envoyer la requête
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            // Vérifier le type de contenu
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Réponse non-JSON reçue:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    contentType: contentType,
+                    body: text
+                });
+                throw new Error('Réponse invalide du serveur');
+            }
+
+            // Parser la réponse
+            const data = await response.json();
+            console.log('Réponse reçue:', data);
+
+            if (!response.ok) {
+                throw new Error(data.message || `Erreur HTTP: ${response.status} ${response.statusText}`);
+            }
+
+            if (!data.success) {
+                throw new Error(data.message || 'Erreur lors de la modification');
+            }
+
+            // Mettre à jour le tableau
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+            if (!row) {
+                throw new Error('Ligne du tableau non trouvée');
+            }
+
+            const userData = data.user;
+            if (!userData) {
+                throw new Error('Données utilisateur manquantes dans la réponse');
+            }
+
+            // Mise à jour des cellules
+            const updates = [
+                { index: 1, value: userData.nom },
+                { index: 2, value: userData.prenom },
+                { index: 3, value: userData.email },
+                { index: 4, value: userData.telephone },
+                { index: 5, value: userData.typeUtilisateur }
+            ];
+
+            updates.forEach(({ index, value }) => {
+                if (row.cells[index]) {
+                    row.cells[index].textContent = value;
+                }
+            });
+
+            // Fermer la modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById(`editUserModal${userId}`));
+            if (modal) {
+                modal.hide();
+            }
+
+            // Afficher le message de succès
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            const container = document.querySelector('.container-fluid');
+            const card = document.querySelector('.card');
+            if (container && card) {
+                container.insertBefore(alertDiv, card);
+                setTimeout(() => alertDiv.remove(), 3000);
+            }
+
+            // Réinitialiser le mot de passe
+            const passwordInput = form.querySelector('input[name="password"]');
+            if (passwordInput) {
+                passwordInput.value = '';
+            }
+
+        } catch (error) {
+            console.error('Erreur lors de la modification:', error);
+            const form = document.getElementById(`editUserForm${userId}`);
+            if (form) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = error.message;
+                form.insertBefore(errorDiv, form.firstChild);
+            }
+        } finally {
+            // Réactiver le bouton de soumission
+            const form = document.getElementById(`editUserForm${userId}`);
+            if (form) {
+                const submitButton = form.querySelector('button.btn-primary');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Enregistrer les modifications';
+                }
+            }
+        }
     }
-</style>
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -58,9 +218,57 @@
                                 <td>{{ user.telephone }}</td>
                                 <td>{{ user.typeUtilisateur }}</td>
                                 <td class="user-actions">
-                                    <button class="btn btn-info btn-sm edit-user" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}" title="Modifier">
                                         <i class="bi bi-pencil"></i>
                                     </button>
+
+                                    <!-- Modal d'édition pour l'utilisateur {{ user.id }} -->
+                                    <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ user.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editUserModalLabel{{ user.id }}">Modifier l'utilisateur</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div id="editUserForm{{ user.id }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
+                                                        <div class="mb-3">
+                                                            <label for="nom{{ user.id }}" class="form-label">Nom</label>
+                                                            <input type="text" class="form-control" id="nom{{ user.id }}" name="nom" value="{{ user.nom }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="prenom{{ user.id }}" class="form-label">Prénom</label>
+                                                            <input type="text" class="form-control" id="prenom{{ user.id }}" name="prenom" value="{{ user.prenom }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="email{{ user.id }}" class="form-label">Email</label>
+                                                            <input type="email" class="form-control" id="email{{ user.id }}" name="email" value="{{ user.email }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="password{{ user.id }}" class="form-label">Mot de passe</label>
+                                                            <input type="password" class="form-control" id="password{{ user.id }}" name="password" placeholder="Laissez vide pour ne pas modifier">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="type_utilisateur{{ user.id }}" class="form-label">Type d'utilisateur</label>
+                                                            <select class="form-select" id="type_utilisateur{{ user.id }}" name="type_utilisateur" required>
+                                                                <option value="ROLE_USER" {{ user.typeUtilisateur == 'ROLE_USER' ? 'selected' : '' }}>Utilisateur</option>
+                                                                <option value="ROLE_ADMIN" {{ user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="telephone{{ user.id }}" class="form-label">Téléphone</label>
+                                                            <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                    <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <button class="btn btn-danger btn-sm delete-user" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -74,7 +282,7 @@
         </div>
     </div>
 
-    <!-- Modal pour ajouter un utilisateur -->
+    <!-- Add User Modal -->
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -83,19 +291,74 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {% if form is defined %}
-                        {{ form_start(form) }}
-                        {{ form_widget(form) }}
+                    <form action="{{ path('admin_user_new') }}" method="POST" id="addUserForm">
+                        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="nom" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prenom" class="form-label">Prénom</label>
+                            <input type="text" class="form-control" id="prenom" name="prenom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="type_utilisateur" class="form-label">Type d'utilisateur</label>
+                            <select class="form-select" id="type_utilisateur" name="type_utilisateur" required>
+                                <option value="">Choisir un type</option>
+                                <option value="freelance">Freelance</option>
+                                <option value="formateur">Formateur</option>
+                                <option value="employeur">Employeur</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telephone" class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" id="telephone" name="telephone">
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
                         </div>
-                        {{ form_end(form) }}
-                    {% endif %}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Afficher les messages flash dans la modal si nécessaire
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    var alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-{{ label }}';
+                    alertDiv.textContent = '{{ message }}';
+                    document.querySelector('.modal-body').insertBefore(alertDiv, document.querySelector('.modal-body').firstChild);
+                {% endfor %}
+            {% endfor %}
+
+            // Réinitialiser le formulaire quand la modal est fermée
+            var addUserModal = document.getElementById('addUserModal');
+            addUserModal.addEventListener('hidden.bs.modal', function () {
+                var form = addUserModal.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+                // Supprimer les messages d'alerte
+                var alerts = addUserModal.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.remove();
+                });
+            });
+        });
+    </script>
 
     <!-- Delete User Modals -->
     {% for user in users %}
