@@ -30,6 +30,7 @@
 
             // Supprimer les anciennes alertes
             form.querySelectorAll('.alert').forEach(alert => alert.remove());
+            document.querySelectorAll('.alert-ajax').forEach(alert => alert.remove());
 
             // Désactiver le bouton de soumission
             const submitButton = form.querySelector('button.btn-primary');
@@ -51,6 +52,9 @@
                 'type_utilisateur': 'select[name="type_utilisateur"]',
                 'telephone': 'input[name="telephone"]'
             };
+            
+            // Ajouter les conditions d'utilisation automatiquement
+            formData.append('conditions', 'on');
 
             // Vérifier et ajouter chaque champ
             for (const [key, selector] of Object.entries(fields)) {
@@ -61,9 +65,12 @@
                 formData.append(key, element.value);
             }
 
-            // Construire l'URL
-            const url = `{{ path('admin_user_edit', {'id': '__USER_ID__'}) }}`.replace('__USER_ID__', userId);
+            // Construire l'URL de l'API
+            const url = `{{ path('api_user_edit', {'id': '__USER_ID__'}) }}`.replace('__USER_ID__', userId);
 
+            console.log('Envoi de la requête à URL:', url);
+            console.log('Données du formulaire:', Object.fromEntries(formData.entries()));
+            
             // Envoyer la requête
             const response = await fetch(url, {
                 method: 'POST',
@@ -71,26 +78,39 @@
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json'
-                }
+                },
+                // S'assurer que les cookies sont envoyés avec la requête
+                credentials: 'same-origin'
             });
 
-            // Vérifier le type de contenu
+            // Vérifier d'abord le type de contenu
             const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
+            console.log('Type de contenu de la réponse:', contentType);
+            
+            // Récupérer la réponse
+            let data;
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                    console.log('Réponse JSON reçue:', data);
+                } catch (jsonError) {
+                    console.error('Erreur lors du parsing JSON:', jsonError);
+                    throw new Error(`Erreur lors du parsing de la réponse JSON: ${jsonError.message}`);
+                }
+            } else {
+                // Si ce n'est pas du JSON, récupérer le texte
                 const text = await response.text();
                 console.error('Réponse non-JSON reçue:', {
                     status: response.status,
                     statusText: response.statusText,
                     contentType: contentType,
-                    body: text
+                    body: text,
+                    url: url
                 });
-                throw new Error('Réponse invalide du serveur');
+                throw new Error(`Réponse invalide du serveur (Status: ${response.status}, Content-Type: ${contentType || 'non défini'})`);
             }
 
-            // Parser la réponse
-            const data = await response.json();
-            console.log('Réponse reçue:', data);
-
+            // Vérifier si la réponse est OK
             if (!response.ok) {
                 throw new Error(data.message || `Erreur HTTP: ${response.status} ${response.statusText}`);
             }
@@ -99,51 +119,10 @@
                 throw new Error(data.message || 'Erreur lors de la modification');
             }
 
-            // Mettre à jour le tableau
-            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
-            if (!row) {
-                throw new Error('Ligne du tableau non trouvée');
-            }
+            // Redirection simple vers la page des utilisateurs
+            window.location.href = "{{ path('admin_users') }}";
 
-            const userData = data.user;
-            if (!userData) {
-                throw new Error('Données utilisateur manquantes dans la réponse');
-            }
 
-            // Mise à jour des cellules
-            const updates = [
-                { index: 1, value: userData.nom },
-                { index: 2, value: userData.prenom },
-                { index: 3, value: userData.email },
-                { index: 4, value: userData.telephone },
-                { index: 5, value: userData.typeUtilisateur }
-            ];
-
-            updates.forEach(({ index, value }) => {
-                if (row.cells[index]) {
-                    row.cells[index].textContent = value;
-                }
-            });
-
-            // Fermer la modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById(`editUserModal${userId}`));
-            if (modal) {
-                modal.hide();
-            }
-
-            // Afficher le message de succès
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            const container = document.querySelector('.container-fluid');
-            const card = document.querySelector('.card');
-            if (container && card) {
-                container.insertBefore(alertDiv, card);
-                setTimeout(() => alertDiv.remove(), 3000);
-            }
 
             // Réinitialiser le mot de passe
             const passwordInput = form.querySelector('input[name="password"]');
@@ -153,12 +132,28 @@
 
         } catch (error) {
             console.error('Erreur lors de la modification:', error);
+            
+            // Afficher l'erreur dans le formulaire
             const form = document.getElementById(`editUserForm${userId}`);
             if (form) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger';
                 errorDiv.textContent = error.message;
                 form.insertBefore(errorDiv, form.firstChild);
+            }
+            
+            // Afficher également l'erreur en haut de la page
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show alert-ajax';
+            alertDiv.innerHTML = `
+                Erreur: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            const container = document.querySelector('.container-fluid');
+            const card = document.querySelector('.card');
+            if (container && card) {
+                container.insertBefore(alertDiv, card);
+                setTimeout(() => alertDiv.remove(), 5000);
             }
         } finally {
             // Réactiver le bouton de soumission
@@ -210,7 +205,7 @@
                         </thead>
                         <tbody>
                             {% for user in users %}
-                            <tr>
+                            <tr data-user-id="{{ user.id }}">
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.nom }}</td>
                                 <td>{{ user.prenom }}</td>
@@ -231,7 +226,7 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div id="editUserForm{{ user.id }}">
+                                                    <form id="editUserForm{{ user.id }}">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
                                                         <div class="mb-3">
                                                             <label for="nom{{ user.id }}" class="form-label">Nom</label>
@@ -252,19 +247,23 @@
                                                         <div class="mb-3">
                                                             <label for="type_utilisateur{{ user.id }}" class="form-label">Type d'utilisateur</label>
                                                             <select class="form-select" id="type_utilisateur{{ user.id }}" name="type_utilisateur" required>
-                                                                <option value="ROLE_USER" {{ user.typeUtilisateur == 'ROLE_USER' ? 'selected' : '' }}>Utilisateur</option>
-                                                                <option value="ROLE_ADMIN" {{ user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
+                                                                <option value="admin" {{ user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
+                                                                <option value="freelance" {{ user.typeUtilisateur == 'freelance' ? 'selected' : '' }}>Freelance</option>
+                                                                <option value="formateur" {{ user.typeUtilisateur == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                                                                <option value="employeur" {{ user.typeUtilisateur == 'employeur' ? 'selected' : '' }}>Employeur</option>
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="telephone{{ user.id }}" class="form-label">Téléphone</label>
-                                                            <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" required>
+                                                            <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" pattern="[0-9]{8}" title="Le numéro de téléphone doit contenir 8 chiffres" required>
+                                                            <small class="form-text text-muted">Format: 8 chiffres sans espaces (ex: 12345678)</small>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                    <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                            <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
+                                                        </div>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -313,6 +312,7 @@
                             <label for="type_utilisateur" class="form-label">Type d'utilisateur</label>
                             <select class="form-select" id="type_utilisateur" name="type_utilisateur" required>
                                 <option value="">Choisir un type</option>
+                                <option value="admin">Administrateur</option>
                                 <option value="freelance">Freelance</option>
                                 <option value="formateur">Formateur</option>
                                 <option value="employeur">Employeur</option>
@@ -320,8 +320,10 @@
                         </div>
                         <div class="mb-3">
                             <label for="telephone" class="form-label">Téléphone</label>
-                            <input type="tel" class="form-control" id="telephone" name="telephone">
+                            <input type="tel" class="form-control" id="telephone" name="telephone" pattern="[0-9]{8}" title="Le numéro de téléphone doit contenir 8 chiffres">
+                            <small class="form-text text-muted">Format: 8 chiffres sans espaces (ex: 12345678)</small>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                             <button type="submit" class="btn btn-primary">Ajouter</button>
@@ -384,4 +386,44 @@
         </div>
     </div>
     {% endfor %}
+
+    <!-- Modal des conditions d'utilisation -->
+    <div class="modal fade" id="conditionsModal" tabindex="-1" aria-labelledby="conditionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="conditionsModalLabel">Conditions d'utilisation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>Conditions Générales d'Utilisation</h4>
+                    <p>Dernière mise à jour : {{ "now"|date("d/m/Y") }}</p>
+                    
+                    <h5>1. Acceptation des conditions</h5>
+                    <p>En utilisant cette plateforme, vous acceptez de vous conformer aux présentes Conditions Générales d'Utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser cette plateforme.</p>
+                    
+                    <h5>2. Description du service</h5>
+                    <p>Notre plateforme propose des services de mise en relation entre freelances, formateurs, employeurs et administrateurs dans le cadre de projets professionnels.</p>
+                    
+                    <h5>3. Inscription et comptes utilisateurs</h5>
+                    <p>Pour utiliser certaines fonctionnalités de notre plateforme, vous devez créer un compte. Vous êtes responsable de maintenir la confidentialité de vos identifiants et de toutes les activités qui se produisent sous votre compte.</p>
+                    
+                    <h5>4. Données personnelles</h5>
+                    <p>Nous recueillons et traitons vos données personnelles conformément à notre politique de confidentialité. En utilisant notre plateforme, vous consentez à cette collecte et à ce traitement.</p>
+                    
+                    <h5>5. Propriété intellectuelle</h5>
+                    <p>Tous les contenus présents sur cette plateforme sont protégés par des droits de propriété intellectuelle. Toute reproduction non autorisée est interdite.</p>
+                    
+                    <h5>6. Limitation de responsabilité</h5>
+                    <p>Nous ne pouvons garantir que notre plateforme sera exempte d'erreurs ou d'interruptions. Nous ne sommes pas responsables des dommages indirects résultant de l'utilisation de notre plateforme.</p>
+                    
+                    <h5>7. Modification des conditions</h5>
+                    <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication sur la plateforme.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">J'ai compris</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

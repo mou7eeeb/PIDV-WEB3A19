@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -101,35 +99,21 @@ class UserController extends AbstractController
                 // Définir la date d'inscription
                 $user->setDateInscription(new \DateTimeImmutable());
 
-                // Définir les rôles
-                $roles = ['ROLE_USER'];
-                if ($user->getTypeUtilisateur() === 'admin') {
-                    $roles[] = 'ROLE_ADMIN';
-                }
-                $user->setRoles($roles);
-
-                // Activer le compte par défaut
-                $user->setIsActive(true);
-
-                // Persister l'utilisateur
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $logger->info('Utilisateur créé avec succès', ['id' => $user->getId()]);
                 $this->addFlash('success', 'Utilisateur créé avec succès.');
-
+                return $this->redirectToRoute('admin_users');
             } catch (\Exception $e) {
-                $logger->error('Erreur lors de la création de l\'utilisateur', [
+                $logger->error('Erreur lors de la création d\'un utilisateur', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'data' => $request->request->all()
                 ]);
-                $this->addFlash('error', 'Une erreur est survenue lors de la création de l\'utilisateur.');
+                $this->addFlash('error', 'Erreur lors de la création de l\'utilisateur : ' . $e->getMessage());
             }
         } else {
-            // Afficher les erreurs
             foreach ($errors as $error) {
                 $this->addFlash('error', $error);
-                $logger->error('Erreur de validation', ['error' => $error]);
             }
         }
 
@@ -142,18 +126,28 @@ class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $userPasswordHasher,
-        ValidatorInterface $validator,
         LoggerInterface $logger
-    ): JsonResponse {
+    ): Response {
+        // Si c'est une requête AJAX, rediriger vers l'API
+        if ($request->isXmlHttpRequest()) {
+            return $this->forward('App\Controller\Admin\UserController::apiEditUser', [
+                'id' => $user->getId(),
+                'request' => $request
+            ]);
+        }
+        
+        // Sinon, traiter comme une soumission de formulaire normale
         try {
-            // Vérifier si c'est une requête AJAX
-            if (!$request->isXmlHttpRequest()) {
-                throw new \Exception('Seules les requêtes AJAX sont autorisées.');
-            }
-
+            // Journaliser toutes les données de la requête pour le débogage
+            $logger->info('Données reçues dans la requête edit', [
+                'request' => $request->request->all(),
+                'userId' => $user->getId()
+            ]);
+            
             // Vérifier le token CSRF
             if (!$this->isCsrfTokenValid('edit'.$user->getId(), $request->request->get('_token'))) {
-                throw new \Exception('Token CSRF invalide.');
+                $this->addFlash('error', 'Token CSRF invalide.');
+                return $this->redirectToRoute('admin_users');
             }
 
             // Récupérer les données
@@ -167,11 +161,6 @@ class UserController extends AbstractController
             // Vérifier les champs obligatoires
             if (!$nom || !$prenom || !$email || !$typeUtilisateur) {
                 throw new \Exception('Tous les champs obligatoires doivent être remplis.');
-            }
-
-            // Vérifier le type d'utilisateur
-            if (!in_array($typeUtilisateur, ['admin', 'freelance', 'client'])) {
-                throw new \Exception('Type d\'utilisateur invalide.');
             }
 
             // Vérifier l'email
@@ -191,21 +180,79 @@ class UserController extends AbstractController
                 $user->setMotDePasse($userPasswordHasher->hashPassword($user, $password));
             }
 
-            // Valider l'entité
-            $errors = $validator->validate($user);
-            if (count($errors) > 0) {
-                $messages = [];
-                foreach ($errors as $error) {
-                    $messages[] = $error->getMessage();
-                }
-                throw new \Exception(implode(', ', $messages));
+            // Sauvegarder les modifications
+            $entityManager->flush();
+
+            // Ajouter un message flash de succès
+            $this->addFlash('success', 'Utilisateur modifié avec succès.');
+            
+            // Rediriger vers la liste des utilisateurs
+            return $this->redirectToRoute('admin_users');
+
+        } catch (\Exception $e) {
+            $logger->error('Erreur lors de la modification', [
+                'error' => $e->getMessage(),
+                'userId' => $user->getId(),
+                'request' => $request->request->all()
+            ]);
+
+            // Ajouter un message flash d'erreur
+            $this->addFlash('error', 'Erreur lors de la modification de l\'utilisateur : ' . $e->getMessage());
+            
+            // Rediriger vers la liste des utilisateurs
+            return $this->redirectToRoute('admin_users');
+        }
+    }
+
+    #[Route('/api/user/{id}/edit', name: 'api_user_edit', methods: ['POST'])]
+    public function apiEditUser(
+        Request $request,
+        User $user,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $userPasswordHasher,
+        LoggerInterface $logger
+    ): JsonResponse {
+        try {
+            // Vérifier le token CSRF
+            if (!$this->isCsrfTokenValid('edit'.$user->getId(), $request->request->get('_token'))) {
+                throw new \Exception('Token CSRF invalide.');
+            }
+
+            // Récupérer les données
+            $nom = $request->request->get('nom');
+            $prenom = $request->request->get('prenom');
+            $email = $request->request->get('email');
+            $typeUtilisateur = $request->request->get('type_utilisateur');
+            $telephone = $request->request->get('telephone');
+            $password = $request->request->get('password');
+
+            // Vérifier les champs obligatoires
+            if (!$nom || !$prenom || !$email) {
+                throw new \Exception('Tous les champs obligatoires doivent être remplis.');
+            }
+
+            // Vérifier l'email
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new \Exception('Format d\'email invalide.');
+            }
+
+            // Mettre à jour l'utilisateur
+            $user->setNom($nom)
+                 ->setPrenom($prenom)
+                 ->setEmail($email)
+                 ->setTypeUtilisateur($typeUtilisateur)
+                 ->setTelephone($telephone);
+
+            // Mettre à jour le mot de passe si fourni
+            if ($password) {
+                $user->setMotDePasse($userPasswordHasher->hashPassword($user, $password));
             }
 
             // Sauvegarder les modifications
             $entityManager->flush();
 
-            // Retourner la réponse
-            return $this->json([
+            // Préparer les données de réponse
+            $responseData = [
                 'success' => true,
                 'message' => 'Utilisateur modifié avec succès.',
                 'user' => [
@@ -216,19 +263,21 @@ class UserController extends AbstractController
                     'telephone' => $user->getTelephone(),
                     'typeUtilisateur' => $user->getTypeUtilisateur()
                 ]
-            ]);
+            ];
+            
+            return new JsonResponse($responseData);
 
         } catch (\Exception $e) {
-            $logger->error('Erreur lors de la modification', [
+            $logger->error('API - Erreur lors de la modification', [
                 'error' => $e->getMessage(),
                 'userId' => $user->getId(),
                 'request' => $request->request->all()
             ]);
 
-            return $this->json([
+            return new JsonResponse([
                 'success' => false,
                 'message' => $e->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
