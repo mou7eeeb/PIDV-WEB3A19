@@ -1,6 +1,5 @@
 <?php
 
-// src/Entity/Reclamation.php
 namespace App\Entity;
 
 use App\Repository\ReclamationRepository;
@@ -8,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 class Reclamation
@@ -30,6 +28,7 @@ class Reclamation
         minMessage: 'La description doit contenir au moins {{ limit }} caractères.'
     )]
     private ?string $description = null;
+
     #[ORM\Column(name: 'missionId')]
     #[Assert\NotBlank(message: 'L\'ID de mission est requis.')]
     #[Assert\Positive(message: 'L\'ID de mission doit être un entier positif.')]
@@ -65,33 +64,97 @@ class Reclamation
         $this->reponses = new ArrayCollection();
     }
 
-    // Getters / Setters ...
+    // Getters / Setters
 
-    // Exemples
-    public function getId(): ?int { return $this->id; }
-    public function getUserId(): ?int { return $this->userId; }
-    public function setUserId(?int $userId): self { $this->userId = $userId; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(string $description): self { $this->description = $description; return $this; }
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
 
-    public function getMissionId(): ?int { return $this->missionId; }
-    public function setMissionId(?int $missionId): self { $this->missionId = $missionId; return $this; }
+    public function setUserId(?int $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
 
-    public function getDate(): ?\DateTimeInterface { return $this->date; }
-    public function setDate(\DateTimeInterface $date): self { $this->date = $date; return $this; }
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
 
-    public function getTitre(): ?string { return $this->titre; }
-    public function setTitre(string $titre): self { $this->titre = $titre; return $this; }
+    public function getMissionId(): ?int
+    {
+        return $this->missionId;
+    }
 
-    public function getNombreReponses(): ?int { return $this->nombreReponses; }
-    public function setNombreReponses(?int $nombreReponses): self { $this->nombreReponses = $nombreReponses; return $this; }
+    public function setMissionId(?int $missionId): self
+    {
+        $this->missionId = $missionId;
+        return $this;
+    }
 
-    public function getReponses(): Collection { return $this->reponses; }
-    public function addReponse(Reponse $reponse): self {
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(?string $titre): self
+    {
+        $this->titre = $titre;
+        return $this;
+    }
+
+    public function getNombreReponses(): ?int
+    {
+        return $this->nombreReponses;
+    }
+
+    public function setNombreReponses(?int $nombreReponses): self
+    {
+        $this->nombreReponses = $nombreReponses;
+        return $this;
+    }
+
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Reponse $reponse): self
+    {
         if (!$this->reponses->contains($reponse)) {
             $this->reponses[] = $reponse;
             $reponse->setReclamation($this);
@@ -99,7 +162,8 @@ class Reclamation
         return $this;
     }
 
-    public function removeReponse(Reponse $reponse): self {
+    public function removeReponse(Reponse $reponse): self
+    {
         if ($this->reponses->removeElement($reponse)) {
             if ($reponse->getReclamation() === $this) {
                 $reponse->setReclamation(null);

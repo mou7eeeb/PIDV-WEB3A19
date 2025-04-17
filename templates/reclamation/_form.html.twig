@@ -1,10 +1,10 @@
-{{ form_start(form, {'attr': {'autocomplete': 'off'}}) }}
+{{ form_start(form, {'attr': {'autocomplete': 'off', 'novalidate': 'novalidate'}}) }}
 
 {% for field in form %}
     {% if field.vars.name != 'status' %}
         <div class="mb-3">
             {{ form_label(field) }}
-            {{ form_widget(field, {'attr': {'class': 'form-control', 'required': false}}) }}
+            {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(field) }}
         </div>
     {% endif %}

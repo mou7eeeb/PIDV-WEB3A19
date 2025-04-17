@@ -5,52 +5,27 @@
 {% block body %}
     <h1>✏️ Modifier la réponse</h1>
 
-    {{ form_start(form, {'attr': {'id': 'reponse-form'}}) }}
+    {{ include('reponse/_form.html.twig', {'form': form, 'button_label': '💾 Mettre à jour la réponse'}) }}
 
-    <div class="mb-3">
-        {{ form_label(form.contenu) }}
-        {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'placeholder': 'Écrivez votre réponse ici...'}}) }}
-        <div class="form-text text-danger">
-            {{ form_errors(form.contenu) }}
-        </div>
-    </div>
-
-    <div class="mb-3">
-        {{ form_label(form.dateCreation) }}
-        {{ form_widget(form.dateCreation, {'attr': {'class': 'form-control'}}) }}
-        <div class="form-text text-danger">
-            {{ form_errors(form.dateCreation) }}
-        </div>
-    </div>
-
-    <button class="btn btn-success">💬 Mettre à jour la réponse</button>
-
-    {{ form_end(form) }}
-
-    <a href="{{ path('app_reponse_index') }}">Retour à la liste</a>
-
-    {{ include('reponse/_delete_form.html.twig') }}
+    <a href="{{ path('app_reponse_index') }}">↩️ Retour à la liste des réponses</a>
 {% endblock %}
 
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('reponse-form');
+    if (!form) return;
+
     form.addEventListener('submit', function (e) {
-        const contenu = document.querySelector('[name="reponse[contenu]"]');
-        const dateCreation = document.querySelector('[name="reponse[dateCreation]"]');
+        const contenu = form.querySelector('[name="reponse[contenu]"]');
         const errors = [];
 
         // Validation du champ contenu (doit contenir au moins 10 caractères)
-        if (contenu && contenu.value.trim().length < 10) {
-            errors.push("Le contenu doit contenir au moins 10 caractères.");
+        if (!contenu.value.trim() || contenu.value.trim().length < 10) {
+            errors.push("Le contenu de la réponse doit contenir au moins 10 caractères.");
         }
 
-        // Validation du champ dateCreation (doit être une date valide)
-        if (dateCreation && !dateCreation.value) {
-            errors.push("La date de création est obligatoire.");
-        }
-
+        // Si des erreurs sont trouvées, empêcher l'envoi du formulaire et afficher les erreurs
         if (errors.length > 0) {
             e.preventDefault();
             alert(errors.join("\n"));

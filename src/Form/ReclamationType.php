@@ -25,9 +25,11 @@ class ReclamationType extends AbstractType
                 ],
                 'label' => 'Statut',
                 'data' => 'en attente',]) // valeur sélectionnée par défaut dans le formulaire
-            ->add('date', null, [
-                'widget' => 'single_text'
-            ])
+                ->add('date', null, [
+                    'widget' => 'single_text',
+                    'data' => new \DateTime(), // valeur par défaut
+                ])
+                
            
           
         ;

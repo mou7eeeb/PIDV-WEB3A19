@@ -1,4 +1,4 @@
-{{ form_start(form) }}
+{{ form_start(form, {'attr': {'id': 'reponse-form', 'novalidate': 'novalidate'}}) }}
 
     <div class="mb-3">
         {{ form_label(form.contenu) }}
@@ -16,6 +16,16 @@
         </div>
     </div>
 
-    <button class="btn btn-success">{{ button_label }}</button>
+    <div class="mb-3">
+    {{ form_label(form.userId) }}
+    {{ form_widget(form.userId, {'attr': {'class': 'form-select'}}) }}
+    <div class="form-text text-danger">
+        {{ form_errors(form.userId) }}
+    </div>
+</div>
+
+    <button class="btn btn-success">
+        {{ button_label|default('💾 Enregistrer') }}
+    </button>
 
 {{ form_end(form) }}

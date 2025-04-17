@@ -29,9 +29,10 @@ class Reponse
     #[ORM\Column(type: 'blob', nullable: true)]
     private $image = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)] // Autoriser la valeur NULL
     #[Assert\NotBlank(message: "La date de création ne peut pas être vide.")]
     private ?\DateTimeInterface $dateCreation = null;
+
 
     #[ORM\ManyToOne(targetEntity: Reclamation::class, inversedBy: 'reponses')]
     #[ORM\JoinColumn(nullable: false)]

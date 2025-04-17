@@ -5,37 +5,33 @@
 {% block body %}
     <h1>📥 Nouvelle Réclamation</h1>
 
-    {{ form_start(form, {'attr': {'autocomplete': 'off'}}) }}
+    {{ include('reclamation/_form.html.twig', {'button_label': '💾 Enregistrer'}) }}
 
-    {% for field in form %}
-        {% if field.vars.name != 'status' %}
-            <div class="mb-3">
-                {{ form_label(field) }}
-                {{ form_widget(field, {
-                    'attr': {'class': 'form-control' ~ (field.vars.errors|length > 0 ? ' is-invalid' : '')}
-                }) }}
-                {% if field.vars.errors|length > 0 %}
-                    <div class="invalid-feedback d-block">
-                        {{ form_errors(field) }}
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
-    {% endfor %}
+    <a href="{{ path('app_reclamation_index') }}">↩️ Retour à la liste</a>
+{% endblock %}
 
-    <div class="mb-3">
-        {{ form_label(form.status) }}
-        {{ form_widget(form.status, {
-            'attr': {'class': 'form-select' ~ (form.status.vars.errors|length > 0 ? ' is-invalid' : '')}
-        }) }}
-        {% if form.status.vars.errors|length > 0 %}
-            <div class="invalid-feedback d-block">
-                {{ form_errors(form.status) }}
-            </div>
-        {% endif %}
-    </div>
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (e) {
+        const titre = document.querySelector('[name="reclamation[titre]"]');
+        const description = document.querySelector('[name="reclamation[description]"]');
+        const errors = [];
 
-    <button class="btn btn-success">💾 Enregistrer</button>
+        if (titre.value.trim().length < 5) {
+            errors.push("Le titre doit contenir au moins 5 caractères.");
+        }
 
-    {{ form_end(form) }}
+        if (description.value.trim().length < 10) {
+            errors.push("La description doit contenir au moins 10 caractères.");
+        }
+
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join("\n"));
+        }
+    });
+});
+</script>
 {% endblock %}
