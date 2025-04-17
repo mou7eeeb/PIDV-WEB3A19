@@ -1,0 +1,21 @@
+{{ form_start(form) }}
+
+    <div class="mb-3">
+        {{ form_label(form.contenu) }}
+        {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'placeholder': 'Écrivez votre réponse ici...'}}) }}
+        <div class="form-text text-danger">
+            {{ form_errors(form.contenu) }}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.dateCreation) }}
+        {{ form_widget(form.dateCreation, {'attr': {'class': 'form-control'}}) }}
+        <div class="form-text text-danger">
+            {{ form_errors(form.dateCreation) }}
+        </div>
+    </div>
+
+    <button class="btn btn-success">{{ button_label }}</button>
+
+{{ form_end(form) }}

@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+
+{% block body %}
+    <h1 class="text-center text-primary mb-5">📋 Liste des Réclamations</h1>
+
+    <div class="text-center mb-4">
+        <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary btn-lg px-5 py-3">➕ Ajouter une réclamation</a>
+    </div>
+
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            {% for reclamation in reclamations %}
+                <div class="col">
+                    <div class="card shadow border-0 rounded-4 overflow-hidden">
+                        <div class="card-body" style="background-color: #f9f9f9;">
+                            <h5 class="card-title text-dark fw-bold">{{ reclamation.titre }}</h5>
+                            <p class="card-text text-muted mb-3">{{ reclamation.description }}</p>
+                            <p class="card-text text-dark"><strong>Status:</strong>
+                                <span class="badge {% if reclamation.status == 'Ouvert' %}bg-success{% else %}bg-danger{% endif %}">{{ reclamation.status }}</span>
+                            </p>
+                            <p class="card-text text-dark"><strong>Date:</strong> {{ reclamation.date ? reclamation.date|date('Y-m-d H:i:s') : 'Non spécifiée' }}</p>
+                            <p class="card-text text-dark mb-4"><strong>Réponses:</strong> {{ reclamation.nombreReponses }}</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center" style="background-color: #e2e6ea;">
+                            <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-outline-primary btn-sm">👁️ Détails</a>
+                            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-outline-warning btn-sm">✏️ Modifier</a>
+                            <a href="{{ path('app_reponse_new', {'reclamationId': reclamation.id}) }}" class="btn btn-outline-info btn-sm">➕ Réponse</a>
+
+                            {# Formulaire de suppression #}
+                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cette réclamation ?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                <button class="btn btn-outline-danger btn-sm">🗑️ Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">Aucune réclamation trouvée.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

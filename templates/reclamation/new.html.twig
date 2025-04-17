@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Réclamation{% endblock %}
+
+{% block body %}
+    <h1>📥 Nouvelle Réclamation</h1>
+
+    {{ form_start(form, {'attr': {'autocomplete': 'off'}}) }}
+
+    {% for field in form %}
+        {% if field.vars.name != 'status' %}
+            <div class="mb-3">
+                {{ form_label(field) }}
+                {{ form_widget(field, {
+                    'attr': {'class': 'form-control' ~ (field.vars.errors|length > 0 ? ' is-invalid' : '')}
+                }) }}
+                {% if field.vars.errors|length > 0 %}
+                    <div class="invalid-feedback d-block">
+                        {{ form_errors(field) }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="mb-3">
+        {{ form_label(form.status) }}
+        {{ form_widget(form.status, {
+            'attr': {'class': 'form-select' ~ (form.status.vars.errors|length > 0 ? ' is-invalid' : '')}
+        }) }}
+        {% if form.status.vars.errors|length > 0 %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.status) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <button class="btn btn-success">💾 Enregistrer</button>
+
+    {{ form_end(form) }}
+{% endblock %}

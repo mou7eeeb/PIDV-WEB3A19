@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamation{% endblock %}
+
+{% block body %}
+    <h1>📋 Détails de la Réclamation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ reclamation.id }}</td>
+            </tr>
+            <tr>
+                <th>UserId</th>
+                <td>{{ reclamation.userId }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ reclamation.description }}</td>
+            </tr>
+            <tr>
+                <th>MissionId</th>
+                <td>{{ reclamation.missionId }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ reclamation.status }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ reclamation.date ? reclamation.date|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ reclamation.titre }}</td>
+            </tr>
+            <tr>
+                <th>Nombre de réponses</th>
+                <td>
+                    {{ reclamation.nombreReponses }}
+                    <button class="btn btn-sm btn-info ms-2" onclick="toggleReponses()">👁️ Voir les réponses</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_reclamation_index') }}" class="btn btn-secondary">⬅ Retour à la liste</a>
+    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-warning">✏️ Modifier</a>
+    {{ include('reclamation/_delete_form.html.twig') }}
+
+    <div id="reponses-list" style="display: none;" class="mt-4">
+        <h2>📩 Réponses associées</h2>
+
+        <a href="{{ path('app_reponse_new', {'reclamationId': reclamation.id}) }}" class="btn btn-success mb-3">➕ Ajouter une réponse</a>
+
+        {% if reclamation.reponses is not empty %}
+            <ul class="list-group">
+                {% for reponse in reclamation.reponses %}
+                    <li class="list-group-item">
+                        <strong>Date :</strong> {{ reponse.dateCreation ? reponse.dateCreation|date('Y-m-d H:i') : 'Non définie' }}<br>
+                        <strong>Contenu :</strong> {{ reponse.contenu }}<br>
+                        <strong>User ID :</strong> {{ reponse.userId }}<br>
+
+                        <div class="mt-2">
+                            <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}" class="btn btn-sm btn-warning">✏️ Modifier</a>
+
+                            {{ include('reponse/_delete_form.html.twig', {'reponse': reponse}) }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune réponse pour cette réclamation.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleReponses() {
+            const div = document.getElementById('reponses-list');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+{% endblock %}
