@@ -904,11 +904,6 @@
                 {% endfor %}
 
                 <div class="auth-form">
-                    {% if form_errors(registrationForm) %}
-                <div class="alert alert-danger">
-                    {{ form_errors(registrationForm) }}
-                </div>
-            {% endif %}
 
                 <div class="auth-form-container">
                     <h2 class="auth-title">Créer un compte</h2>
@@ -929,13 +924,20 @@
                         </button>
                     </div>
 
-                    {# Affichage des messages flash #}
+                    {# Affichage des messages flash - Tous les messages d'erreur de champs obligatoires sont supprimés #}
                     {% for label, messages in app.flashes %}
                         {% for message in messages %}
-                            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                            {% if message != 'Vous devez accepter les conditions d\'utilisation' and 
+                                  message != 'Le mot de passe est obligatoire' and 
+                                  message != 'Le numéro de téléphone est obligatoire' and 
+                                  message != 'L\'email est obligatoire' and 
+                                  message != 'Le nom est obligatoire' and 
+                                  message != 'Le prénom est obligatoire' %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     {% endfor %}
 

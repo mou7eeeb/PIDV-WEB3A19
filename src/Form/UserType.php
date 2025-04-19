@@ -13,9 +13,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\Length;
 
 // Formulaire Symfony pour la gestion des utilisateurs
 class UserType extends AbstractType
@@ -31,16 +28,7 @@ class UserType extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Entrez le nom',
                 ],
-                'row_attr' => ['class' => 'mb-3'],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un nom',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 50,
-                    ]),
-                ],
+                'row_attr' => ['class' => 'mb-3']
             ])
             // Champ pour le prénom
             ->add('prenom', TextType::class, [
@@ -49,16 +37,7 @@ class UserType extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Entrez le prénom',
                 ],
-                'row_attr' => ['class' => 'mb-3'],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un prénom',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 50,
-                    ]),
-                ],
+                'row_attr' => ['class' => 'mb-3']
             ])
             // Champ pour l'email
             ->add('email', EmailType::class, [
@@ -67,15 +46,7 @@ class UserType extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Entrez l\'email',
                 ],
-                'row_attr' => ['class' => 'mb-3'],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un email',
-                    ]),
-                    new Email([
-                        'message' => 'Veuillez entrer un email valide',
-                    ]),
-                ],
+                'row_attr' => ['class' => 'mb-3']
             ])
             // Champ pour le type d'utilisateur
             ->add('type_utilisateur', ChoiceType::class, [
@@ -86,12 +57,7 @@ class UserType extends AbstractType
                     'Employeur' => User::USER_TYPE_EMPLOYEUR,
                 ],
                 'attr' => ['class' => 'form-select'],
-                'row_attr' => ['class' => 'mb-3'],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez choisir un type d\'utilisateur',
-                    ]),
-                ],
+                'row_attr' => ['class' => 'mb-3']
             ])
             // Champ pour le téléphone
             ->add('telephone', TelType::class, [
@@ -125,17 +91,6 @@ class UserType extends AbstractType
                     'autocomplete' => 'new-password'
                 ],
                 'row_attr' => ['class' => 'mb-3'],
-                'constraints' => $isRequired ? [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'max' => 4096,
-                        'minMessage' => 'Le mot de passe doit faire au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le mot de passe ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ] : [],
                 'help' => !$isRequired ? 'Laissez ce champ vide si vous ne souhaitez pas modifier le mot de passe' : null,
             ]);
         });

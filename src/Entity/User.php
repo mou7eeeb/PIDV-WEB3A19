@@ -17,7 +17,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     // Champ pour vérifier si l'utilisateur accepte les conditions d'utilisation
-    #[Assert\IsTrue(message: 'Vous devez accepter les conditions d\'utilisation')]
+    #[Assert\IsTrue]
     private bool $agreeTerms = false;
 
     // Constantes pour les types d'utilisateurs et le rôle administrateur

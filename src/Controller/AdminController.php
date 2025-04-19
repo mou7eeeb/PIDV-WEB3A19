@@ -34,7 +34,7 @@ class AdminController extends AbstractController
 
     #[Route('/users/{id}/edit', name: 'admin_user_edit')]
     public function editUser(User $user): Response {
-        // TODO: Implémenter la logique d'édition
+        
         return $this->render('admin/user_edit.html.twig', [
             'user' => $user,
         ]);
