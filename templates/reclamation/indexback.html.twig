@@ -24,8 +24,9 @@
                 <td>{{ reclamation.date ? reclamation.date|date('d/m/Y H:i') : 'N/A' }}</td>
                 <td>{{ reclamation.status }}</td>
                 <td>
-                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-primary btn-sm">Gérer</a>
+                    <a href="{{ path('app_reclamation_back_edit', {'id': reclamation.id}) }}" class="btn btn-primary btn-sm">Gérer</a>
                     <a href="{{ path('app_reponse_new', {'reclamationId': reclamation.id}) }}" class="btn btn-success btn-sm">Répondre</a>
+                    <a href="{{ path('app_reclamation_show_reponses', {'id': reclamation.id}) }}" class="btn btn-info btn-sm">Voir les Réponses</a>
                 </td>
             </tr>
         {% else %}

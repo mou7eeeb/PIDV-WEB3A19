@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Repository\ReponseRepository;
 
 
 
@@ -89,4 +90,34 @@ public function indexBack(ReclamationRepository $reclamationRepository): Respons
 
         return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
     }
+    #[Route('/{id}/back/edit', name: 'app_reclamation_back_edit', methods: ['GET', 'POST'])]
+public function editBack(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+{
+    $form = $this->createForm(ReclamationType::class, $reclamation);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        return $this->redirectToRoute('app_reclamation_back', [], Response::HTTP_SEE_OTHER);
+    }
+
+    return $this->render('reclamation/editback.html.twig', [
+        'reclamation' => $reclamation,
+        'form' => $form,
+    ]);
+}
+
+
+#[Route('/{id}/back/reponses', name: 'app_reclamation_show_reponses', methods: ['GET'])]
+public function showReponsesBack(Reclamation $reclamation, ReponseRepository $reponseRepository): Response
+{
+    $reponses = $reponseRepository->findBy(['reclamation' => $reclamation]);
+
+    return $this->render('reclamation/show_reponses_back.html.twig', [
+        'reclamation' => $reclamation,
+        'reponses' => $reponses,
+    ]);
+}
+
+
 }

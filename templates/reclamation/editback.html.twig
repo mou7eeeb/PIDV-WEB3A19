@@ -1,0 +1,12 @@
+{# templates/reclamation/editback.html.twig #}
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Modifier une Réclamation (Back-Office){% endblock %}
+
+{% block body %}
+    <h1>✏️ Modifier la Réclamation (Back-Office)</h1>
+
+    {{ include('reclamation/_form.html.twig', {'button_label': '💾 Mettre à jour'}) }}
+
+    <a href="{{ path('app_reclamation_back') }}" class="btn btn-secondary mt-3">↩️ Retour à la liste</a>
+{% endblock %}

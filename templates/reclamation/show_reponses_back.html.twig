@@ -1,0 +1,31 @@
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Réponses de la Réclamation{% endblock %}
+
+{% block body %}
+    <h1>📨 Réponses pour la réclamation #{{ reclamation.id }}</h1>
+    <p><strong>Titre :</strong> {{ reclamation.titre }}</p>
+    <p><strong>Description :</strong> {{ reclamation.description }}</p>
+
+    <a href="{{ path('app_reponse_new', {'reclamationId': reclamation.id}) }}" class="btn btn-success mb-3">➕ Ajouter une réponse</a>
+    <a href="{{ path('app_reclamation_back') }}" class="btn btn-secondary mb-3">⬅ Retour à la liste</a>
+
+    {% if reponses is not empty %}
+        <ul class="list-group">
+            {% for reponse in reponses %}
+                <li class="list-group-item">
+                    <p><strong>Contenu :</strong> {{ reponse.contenu }}</p>
+                    <p><strong>Date :</strong> {{ reponse.dateCreation ? reponse.dateCreation|date('Y-m-d H:i') : 'Non définie' }}</p>
+                    <p><strong>Utilisateur :</strong> {{ reponse.user.nom ~ ' ' ~ reponse.user.prenom }}</p>
+
+                    <div class="mt-2">
+                        <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}" class="btn btn-sm btn-warning">✏️ Modifier</a>
+                        {{ include('reponse/_delete_form.html.twig', {'reponse': reponse}) }}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune réponse pour cette réclamation.</p>
+    {% endif %}
+{% endblock %}

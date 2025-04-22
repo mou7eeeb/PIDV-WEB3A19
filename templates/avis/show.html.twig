@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de l'Avis{% endblock %}
+
+{% block body %}
+  <div class="container my-5">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-primary">Détail de l'Avis</h1>
+    </div>
+
+    <div class="card shadow-lg mx-auto" style="max-width: 700px;">
+      <div class="card-body bg-light">
+        <h5 class="card-title text-primary">{{ avis.typeAvis }}</h5>
+        <p class="text-muted">Note : <strong>{{ avis.note }}/5</strong></p>
+        <p class="card-text">{{ avis.commentaire }}</p>
+
+        <hr>
+
+        <p><strong>Date de l’avis :</strong> {{ avis.dateAvis|date('d/m/Y H:i') }}</p>
+        <p><strong>Utilisateur :</strong> {{ avis.user.nom }} {{ avis.user.prenom }}</p>
+      </div>
+
+      <div class="card-footer bg-white d-flex justify-content-between">
+        <a href="{{ path('avis_index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Retour
+        </a>
+        <div>
+          <a href="{{ path('avis_edit', {'id': avis.id}) }}" class="btn btn-outline-warning me-2">
+            <i class="bi bi-pencil-square"></i> Modifier
+          </a>
+          {{ include('avis/_delete_form.html.twig', { avis: avis }) }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

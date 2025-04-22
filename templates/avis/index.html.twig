@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Avis{% endblock %}
+
+{% block body %}
+  <div class="container my-5">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-primary">Liste des Avis</h1>
+      <a href="{{ path('avis_new') }}" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-circle"></i> Ajouter un Avis
+      </a>
+    </div>
+
+    {% if avis is not empty %}
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for a in avis %}
+          <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body bg-light">
+                <h5 class="card-title text-primary">{{ a.typeAvis }} <small class="text-muted">— Note : {{ a.note }}/5</small></h5>
+                <p class="card-text">{{ a.commentaire }}</p>
+                <p class="text-muted">
+                  Donné par <strong>{{ a.user.nom }} {{ a.user.prenom }}</strong> le {{ a.dateAvis|date('d/m/Y H:i') }}
+                </p>
+              </div>
+              <div class="card-footer d-flex justify-content-between bg-white border-0">
+                <a href="{{ path('avis_show', {'id': a.id}) }}" class="btn btn-outline-primary btn-sm">Voir</a>
+                <a href="{{ path('avis_edit', {'id': a.id}) }}" class="btn btn-outline-warning btn-sm">Modifier</a>
+                {{ include('avis/_delete_form.html.twig', { avis: a }) }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info text-center mt-4">
+        Aucun avis trouvé.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

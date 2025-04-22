@@ -5,6 +5,9 @@ namespace App\Entity;
 use App\Repository\ReponseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\User;
+use Doctrine\ORM\Mapping\ManyToOne;
+
 
 #[ORM\Entity(repositoryClass: ReponseRepository::class)]
 #[ORM\Table(name: 'reponses')]
@@ -18,8 +21,9 @@ class Reponse
     #[ORM\Column]
     private ?int $reclamationId = null;
 
-    #[ORM\Column]
-    private ?int $userId = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: "Le contenu de la réponse ne peut pas être vide.")]
@@ -40,6 +44,16 @@ class Reponse
 
     // Getters / Setters
     public function getId(): ?int { return $this->id; }
+    public function getUser(): ?User
+{
+    return $this->user;
+}
+
+public function setUser(?User $user): self
+{
+    $this->user = $user;
+    return $this;
+}
 
     public function getReclamationId(): ?int { return $this->reclamationId; }
     public function setReclamationId(int $reclamationId): self { $this->reclamationId = $reclamationId; return $this; }

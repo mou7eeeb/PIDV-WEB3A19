@@ -11,27 +11,73 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function (e) {
-        const titre = document.querySelector('[name="reclamation[titre]"]');
-        const description = document.querySelector('[name="reclamation[description]"]');
-        const errors = [];
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            const titre = document.querySelector('[name="reclamation[titre]"]');
+            const description = document.querySelector('[name="reclamation[description]"]');
+            const errors = [];
 
-        if (titre.value.trim().length < 5) {
-            errors.push("Le titre doit contenir au moins 5 caractères.");
-        }
+            if (titre.value.trim().length < 5) {
+                errors.push("Le titre doit contenir au moins 5 caractères.");
+            }
 
-        if (description.value.trim().length < 10) {
-            errors.push("La description doit contenir au moins 10 caractères.");
-        }
+            if (description.value.trim().length < 10) {
+                errors.push("La description doit contenir au moins 10 caractères.");
+            }
 
-        if (errors.length > 0) {
-            e.preventDefault();
-            alert(errors.join("\n"));
-        }
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert(errors.join("\n"));
+            }
+        });
     });
-});
-</script>
+    </script>
+
+    <style>
+        /* Style pour les champs invalides */
+        .invalid {
+            border: 2px solid red !important; /* Bordure rouge */
+            background-color: #f8d7da !important; /* Fond rouge clair */
+            color: red !important; /* Texte en rouge */
+        }
+
+        .form-error {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {{ form_start(form, {'attr': {'autocomplete': 'off', 'novalidate': 'novalidate'}}) }}
+
+    {% for field in form %}
+        {% if field.vars.name != 'status' %}
+            <div class="mb-3">
+                {{ form_label(field) }}
+                {# Vérification des erreurs et application de la classe 'invalid' #}
+                {{ form_widget(field, {'attr': {'class': field.vars.errors|length > 0 ? 'form-control invalid' : 'form-control'}}) }}
+                <div class="form-error">
+                    {{ form_errors(field) }}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="mb-3">
+        {{ form_label(form.status) }}
+        {{ form_widget(form.status, {'attr': {'class': form.status.vars.errors|length > 0 ? 'form-select invalid' : 'form-select'}}) }}
+        <div class="form-error">
+            {{ form_errors(form.status) }}
+        </div>
+    </div>
+
+    <button class="btn btn-success">
+        {{ button_label|default('💾 Enregistrer') }}
+    </button>
+
+    {{ form_end(form) }}
 {% endblock %}

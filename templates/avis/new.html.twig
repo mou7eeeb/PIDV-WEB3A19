@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un Avis{% endblock %}
+
+{% block body %}
+  <div class="container my-5">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-primary">Ajouter un nouvel Avis</h1>
+    </div>
+
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 700px; background-color: #f8f9fa;">
+      {{ form_start(form) }}
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form_label(form.dateAvis, "📅 Date de l'avis") }}
+            {{ form_widget(form.dateAvis, {'attr': {'class': 'form-control'}}) }}
+            {% if form_errors(form.dateAvis) %}
+              <div class="invalid-feedback d-block">{{ form_errors(form.dateAvis) }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form_label(form.user, '👤 Utilisateur') }}
+            {{ form_widget(form.user, {'attr': {'class': 'form-control'}}) }}
+            {% if form_errors(form.user) %}
+              <div class="invalid-feedback d-block">{{ form_errors(form.user) }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          {{ form_label(form.typeAvis, '🗂️ Type d\'avis') }}
+          {{ form_widget(form.typeAvis, {'attr': {'class': 'form-control'}}) }}
+          {% if form_errors(form.typeAvis) %}
+            <div class="invalid-feedback d-block">{{ form_errors(form.typeAvis) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form_label(form.note, '⭐ Note') }}
+          {{ form_widget(form.note, {'attr': {'class': 'form-control'}}) }}
+          {% if form_errors(form.note) %}
+            <div class="invalid-feedback d-block">{{ form_errors(form.note) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {{ form_label(form.commentaire, '💬 Commentaire') }}
+          {{ form_widget(form.commentaire, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+          {% if form_errors(form.commentaire) %}
+            <div class="invalid-feedback d-block">{{ form_errors(form.commentaire) }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ path('avis_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Enregistrer
+          </button>
+        </div>
+
+      {{ form_end(form) }}
+    </div>
+  </div>
+{% endblock %}

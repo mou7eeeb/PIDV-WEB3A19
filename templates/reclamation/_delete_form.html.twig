@@ -1,4 +1,25 @@
-<form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+<form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
-    <button class="btn">Delete</button>
+
+    <button type="button" class="btn btn-danger" onclick="confirmDeletion()">Supprimer</button>
 </form>
+
+<div id="confirmation-message" style="display:none; color: red;">
+    <p>Êtes-vous sûr de vouloir supprimer cette réclamation ?</p>
+    <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+        <button class="btn btn-danger">Confirmer la suppression</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelDeletion()">Annuler</button>
+    </form>
+</div>
+
+<script>
+    function confirmDeletion() {
+        event.preventDefault(); // Empêche l'envoi immédiat du formulaire
+        document.getElementById('confirmation-message').style.display = 'block'; // Affiche le message de confirmation
+    }
+
+    function cancelDeletion() {
+        document.getElementById('confirmation-message').style.display = 'none'; // Cache le message de confirmation
+    }
+</script>

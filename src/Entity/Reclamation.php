@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\User;
+use App\Entity\Mission;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 class Reclamation
@@ -16,10 +18,10 @@ class Reclamation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    #[Assert\NotBlank(message: 'L\'ID utilisateur est requis.')]
-    #[Assert\Positive(message: 'L\'ID utilisateur doit être un entier positif.')]
-    private ?int $userId = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'L\'utilisateur est requis.')]
+    private ?User $user = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'La description ne peut pas être vide.')]
@@ -29,19 +31,21 @@ class Reclamation
     )]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'missionId')]
-    #[Assert\NotBlank(message: 'L\'ID de mission est requis.')]
-    #[Assert\Positive(message: 'L\'ID de mission doit être un entier positif.')]
-    private ?int $missionId = null;
+   
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'missionid', referencedColumnName: 'id', nullable: false)]  // Changer le nom de la colonne ici
+    #[Assert\NotNull(message: 'L\'mission est requis.')]
+    
+    private ?Mission $mission = null;
+
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ['en attente', 'ouvert', 'traité'], message: 'Le statut doit être "ouvert" ou "fermé".')]
+    #[Assert\Choice(choices: ['en attente', 'ouvert', 'traité'], message: 'Le statut doit être "en attente", "ouvert" ou "traité".')]
     private ?string $status = 'en attente';
 
     #[ORM\Column(type: 'datetime')]
-    #[Assert\NotNull(message: 'La date est requise.')]
-    #[Assert\Type(\DateTimeInterface::class)]
-    private ?\DateTimeInterface $date = null;
+    private ?\DateTimeInterface $date = null; // La date sera automatiquement définie à la date du système
+
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le titre est requis.')]
@@ -58,27 +62,27 @@ class Reclamation
 
     #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: Reponse::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $reponses;
+    
 
     public function __construct()
     {
         $this->reponses = new ArrayCollection();
+        $this->date = new \DateTime();
     }
-
-    // Getters / Setters
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?User
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setUserId(?int $userId): self
+    public function setUser(?User $user): self
     {
-        $this->userId = $userId;
+        $this->user = $user;
         return $this;
     }
 
@@ -93,14 +97,14 @@ class Reclamation
         return $this;
     }
 
-    public function getMissionId(): ?int
+    public function getMission(): ?Mission
     {
-        return $this->missionId;
+        return $this->mission;
     }
 
-    public function setMissionId(?int $missionId): self
+    public function setMission(?Mission $mission): self
     {
-        $this->missionId = $missionId;
+        $this->mission = $mission;
         return $this;
     }
 

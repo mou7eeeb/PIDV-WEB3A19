@@ -1,0 +1,10 @@
+<form method="post" action="{{ path('avis_delete', {'id': avis.id}) }}" style="display:inline;" onsubmit="return confirmDelete();">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ avis.id) }}">
+    <button class="btn btn-danger" type="submit">Supprimer</button>
+</form>
+
+<script>
+    function confirmDelete() {
+        return confirm('Êtes-vous sûr de vouloir supprimer cet avis ?');
+    }
+</script>
