@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\PdfService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -284,6 +285,37 @@ class UserController extends AbstractController
                 'message' => $e->getMessage()
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
+    }
+
+    // Génère un PDF pour tous les utilisateurs
+    #[Route('/users/pdf', name: 'admin_users_pdf', methods: ['GET'])]
+    public function generateUsersPdf(UserRepository $userRepository, PdfService $pdfService): Response
+    {
+        // Récupérer tous les utilisateurs
+        $users = $userRepository->findAll();
+        
+        // Générer le HTML avec le template Twig
+        $html = $this->renderView('admin/pdf/users_list.html.twig', [
+            'users' => $users
+        ]);
+        
+        // Générer et retourner le PDF
+        return $pdfService->generatePdfResponse($html, 'liste_utilisateurs.pdf');
+    }
+    
+    // Génère un PDF pour un utilisateur spécifique
+    #[Route('/user/{id}/pdf', name: 'admin_user_pdf', methods: ['GET'])]
+    public function generateUserPdf(User $user, PdfService $pdfService): Response
+    {
+        // Générer le HTML avec le template Twig
+        $html = $this->renderView('admin/pdf/user_details.html.twig', [
+            'user' => $user
+        ]);
+        
+        // Générer et retourner le PDF avec un nom de fichier personnalisé
+        $filename = 'utilisateur_' . $user->getNom() . '_' . $user->getPrenom() . '.pdf';
+        
+        return $pdfService->generatePdfResponse($html, $filename);
     }
 
     // Suppression d'un utilisateur

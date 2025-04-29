@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Détails de l'utilisateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 20px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .date {
+            text-align: right;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .user-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .user-type {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .type-freelance {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+        .type-formateur {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .type-employeur {
+            background-color: #fff3e0;
+            color: #ed6c02;
+        }
+        .user-details {
+            margin-bottom: 20px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            width: 150px;
+            font-weight: bold;
+            color: #555;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+        .role-badge {
+            display: inline-block;
+            margin-right: 5px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            background-color: #eee;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FICHE UTILISATEUR</h1>
+    </div>
+    
+    <div class="date">
+        Généré le {{ "now"|date("d/m/Y à H:i") }}
+    </div>
+    
+    <div class="user-card">
+        <div class="user-header">
+            <div class="user-name">{{ user.nom }} {{ user.prenom }}</div>
+            <div class="user-type type-{{ user.typeUtilisateur }}">{{ user.typeUtilisateur|capitalize }}</div>
+        </div>
+        
+        <div class="user-details">
+            <div class="detail-row">
+                <div class="detail-label">Email :</div>
+                <div class="detail-value">{{ user.email }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Téléphone :</div>
+                <div class="detail-value">{{ user.telephone ?: 'Non renseigné' }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Date d'inscription :</div>
+                <div class="detail-value">{{ user.dateInscription|date('d/m/Y') }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Statut :</div>
+                <div class="detail-value">
+                    <span class="status-{{ user.isActive ? 'active' : 'inactive' }}">
+                        {{ user.isActive ? 'Actif' : 'Inactif' }}
+                    </span>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Rôles :</div>
+                <div class="detail-value">
+                    {% for role in user.roles %}
+                        <span class="role-badge">
+                            {{ role|replace({'ROLE_': ''}) }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Document confidentiel - {{ "now"|date("Y") }} Tous droits réservés</p>
+    </div>
+</body>
+</html>

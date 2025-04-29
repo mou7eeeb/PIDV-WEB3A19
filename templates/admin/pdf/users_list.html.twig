@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des utilisateurs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 20px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .date {
+            text-align: right;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #444;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            font-size: 11px;
+        }
+        td {
+            padding: 6px 8px;
+            vertical-align: middle;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .type-freelance {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+        .type-formateur {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .type-employeur {
+            background-color: #fff3e0;
+            color: #ed6c02;
+        }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>LISTE DES UTILISATEURS</h1>
+    </div>
+    
+    <div class="date">
+        Généré le {{ "now"|date("d/m/Y à H:i") }}
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Téléphone</th>
+                <th>Inscription</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.nom }}</td>
+                <td>{{ user.prenom }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <span class="type-badge type-{{ user.typeUtilisateur }}">
+                        {{ user.typeUtilisateur|capitalize }}
+                    </span>
+                </td>
+                <td>{{ user.telephone ?: 'Non renseigné' }}</td>
+                <td>{{ user.dateInscription|date('d/m/Y') }}</td>
+                <td class="status-{{ user.isActive ? 'active' : 'inactive' }}">
+                    {{ user.isActive ? 'Actif' : 'Inactif' }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Document confidentiel - {{ "now"|date("Y") }} Tous droits réservés</p>
+    </div>
+</body>
+</html>

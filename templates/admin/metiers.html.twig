@@ -1,0 +1,726 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion des métiers{% endblock %}
+
+{% block page_title %}Gestion des métiers{% endblock %}
+{% block breadcrumb %}Métiers{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/css/adminlte-custom.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .metier-actions .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-outline-primary, .btn-outline-secondary {
+            border-width: 1px;
+            font-weight: 500;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-primary:hover, .btn-outline-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .rounded-pill {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .stats-box {
+            border: 1px solid #dee2e6;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .type-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .type-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .cat-dev-web {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+        
+        .cat-dev-mobile {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .cat-design {
+            background-color: #fff3e0;
+            color: #ed6c02;
+        }
+        
+        .cat-marketing {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+        }
+        
+        .cat-gestion {
+            background-color: #e8eaf6;
+            color: #3f51b5;
+        }
+        
+        .cat-redaction {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+        
+        .cat-autre {
+            background-color: #f5f5f5;
+            color: #607d8b;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid px-4">
+        <!-- Boutons d'action et recherche -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addMetierModal">
+                    <i class="fas fa-plus me-1"></i>Ajouter un métier
+                </button>
+                <button type="button" id="showStatsBtn" class="btn btn-outline-primary">
+                    <i class="bi bi-bar-chart-fill me-1"></i>Stats
+                </button>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un métier...">
+                    <button class="btn btn-outline-secondary" type="button" id="sortOldestFirst">
+                        <i class="fas fa-sort-amount-up-alt"></i> Plus anciens
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="sortNewestFirst">
+                        <i class="fas fa-sort-amount-down"></i> Plus récents
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section des statistiques (masquée par défaut) -->
+        <div id="statsSection" class="row mb-4" style="display: none;">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Répartition des métiers par catégorie</h5>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px;">
+                            <canvas id="metierCategoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-box">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Statistiques des métiers</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="metierCategoryStats">
+                            <!-- Les statistiques seront générées par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau des métiers -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Liste des métiers</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Description</th>
+                                <th>Date de création</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metiersTableBody">
+                            <!-- Les données seront chargées par AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout de métier -->
+    <div class="modal fade" id="addMetierModal" tabindex="-1" aria-labelledby="addMetierModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMetierModalLabel">Ajouter un métier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMetierForm">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom du métier</label>
+                            <input type="text" class="form-control" id="nom" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categorie" class="form-label">Catégorie</label>
+                            <select class="form-control" id="categorie" name="categorie" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                                <option value="Développement Web">Développement Web</option>
+                                <option value="Développement Mobile">Développement Mobile</option>
+                                <option value="Design">Design</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Gestion de Projet">Gestion de Projet</option>
+                                <option value="Rédaction">Rédaction</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="saveMetierBtn">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'édition de métier -->
+    <div class="modal fade" id="editMetierModal" tabindex="-1" aria-labelledby="editMetierModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMetierModalLabel">Modifier un métier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editMetierForm">
+                        <input type="hidden" id="edit_id" name="id">
+                        <div class="mb-3">
+                            <label for="edit_nom" class="form-label">Nom du métier</label>
+                            <input type="text" class="form-control" id="edit_nom" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_categorie" class="form-label">Catégorie</label>
+                            <select class="form-control" id="edit_categorie" name="categorie" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                                <option value="Développement Web">Développement Web</option>
+                                <option value="Développement Mobile">Développement Mobile</option>
+                                <option value="Design">Design</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Gestion de Projet">Gestion de Projet</option>
+                                <option value="Rédaction">Rédaction</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_description" class="form-label">Description</label>
+                            <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="updateMetierBtn">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteMetierModal" tabindex="-1" aria-labelledby="deleteMetierModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteMetierModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer ce métier ?</p>
+                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables globales
+        let metiers = [];
+        let chartInstance = null;
+        let statsGenerated = false;
+        let deleteMetierId = null;
+        
+        // Éléments DOM
+        const showStatsBtn = document.getElementById('showStatsBtn');
+        const statsSection = document.getElementById('statsSection');
+        const searchInput = document.getElementById('searchInput');
+        const sortOldestFirst = document.getElementById('sortOldestFirst');
+        const sortNewestFirst = document.getElementById('sortNewestFirst');
+        const metiersTableBody = document.getElementById('metiersTableBody');
+        const saveMetierBtn = document.getElementById('saveMetierBtn');
+        const updateMetierBtn = document.getElementById('updateMetierBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Charger les métiers au chargement de la page
+        loadMetiers();
+        
+        // Afficher/masquer les statistiques
+        if (showStatsBtn && statsSection) {
+            showStatsBtn.addEventListener('click', function() {
+                if (statsSection.style.display === 'none') {
+                    statsSection.style.display = 'block';
+                    showStatsBtn.innerHTML = '<i class="bi bi-x-lg me-1"></i>Fermer';
+                    showStatsBtn.classList.remove('btn-outline-primary');
+                    showStatsBtn.classList.add('btn-outline-secondary');
+                    
+                    if (!statsGenerated) {
+                        generateStats();
+                        statsGenerated = true;
+                    }
+                } else {
+                    statsSection.style.display = 'none';
+                    showStatsBtn.innerHTML = '<i class="bi bi-bar-chart-fill me-1"></i>Stats';
+                    showStatsBtn.classList.remove('btn-outline-secondary');
+                    showStatsBtn.classList.add('btn-outline-primary');
+                }
+            });
+        }
+        
+        // Recherche en temps réel
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterMetiers(searchTerm);
+            });
+        }
+        
+        // Tri par date (plus ancien)
+        if (sortOldestFirst) {
+            sortOldestFirst.addEventListener('click', function() {
+                sortMetiersByDate('asc');
+            });
+        }
+        
+        // Tri par date (plus récent)
+        if (sortNewestFirst) {
+            sortNewestFirst.addEventListener('click', function() {
+                sortMetiersByDate('desc');
+            });
+        }
+        
+        // Ajouter un métier
+        if (saveMetierBtn) {
+            saveMetierBtn.addEventListener('click', function() {
+                const formData = new FormData(document.getElementById('addMetierForm'));
+                addMetier(formData);
+            });
+        }
+        
+        // Mettre à jour un métier
+        if (updateMetierBtn) {
+            updateMetierBtn.addEventListener('click', function() {
+                const formData = new FormData(document.getElementById('editMetierForm'));
+                updateMetier(formData);
+            });
+        }
+        
+        // Confirmer la suppression
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (deleteMetierId) {
+                    deleteMetier(deleteMetierId);
+                }
+            });
+        }
+        
+        // Fonction pour charger les métiers via AJAX
+        function loadMetiers() {
+            fetch('/admin/api/metiers')
+                .then(response => response.json())
+                .then(data => {
+                    metiers = data;
+                    renderMetiersTable(metiers);
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des métiers:', error);
+                    alert('Erreur lors du chargement des métiers');
+                });
+        }
+        
+        // Fonction pour filtrer les métiers
+        function filterMetiers(searchTerm) {
+            if (!searchTerm) {
+                renderMetiersTable(metiers);
+                return;
+            }
+            
+            const filteredMetiers = metiers.filter(metier => {
+                return metier.nom.toLowerCase().includes(searchTerm) || 
+                       metier.categorie.toLowerCase().includes(searchTerm) || 
+                       (metier.description && metier.description.toLowerCase().includes(searchTerm));
+            });
+            
+            renderMetiersTable(filteredMetiers);
+        }
+        
+        // Fonction pour trier les métiers par date
+        function sortMetiersByDate(order) {
+            const sortedMetiers = [...metiers].sort((a, b) => {
+                const dateA = new Date(a.createdAt);
+                const dateB = new Date(b.createdAt);
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            });
+            
+            renderMetiersTable(sortedMetiers);
+        }
+        
+        // Fonction pour afficher les métiers dans le tableau
+        function renderMetiersTable(metiersToRender) {
+            metiersTableBody.innerHTML = '';
+            
+            if (metiersToRender.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6" class="text-center">Aucun métier trouvé</td>';
+                metiersTableBody.appendChild(row);
+                return;
+            }
+            
+            metiersToRender.forEach(metier => {
+                const row = document.createElement('tr');
+                
+                // Formater la date
+                const createdAt = new Date(metier.createdAt);
+                const formattedDate = createdAt.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Déterminer la classe CSS pour la catégorie
+                let categoryClass = 'cat-autre';
+                switch(metier.categorie) {
+                    case 'Développement Web': categoryClass = 'cat-dev-web'; break;
+                    case 'Développement Mobile': categoryClass = 'cat-dev-mobile'; break;
+                    case 'Design': categoryClass = 'cat-design'; break;
+                    case 'Marketing': categoryClass = 'cat-marketing'; break;
+                    case 'Gestion de Projet': categoryClass = 'cat-gestion'; break;
+                    case 'Rédaction': categoryClass = 'cat-redaction'; break;
+                }
+                
+                row.innerHTML = `
+                    <td>${metier.id}</td>
+                    <td>${metier.nom}</td>
+                    <td><span class="type-badge ${categoryClass}">${metier.categorie}</span></td>
+                    <td>${metier.description || '-'}</td>
+                    <td>${formattedDate}</td>
+                    <td class="metier-actions">
+                        <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${metier.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${metier.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                metiersTableBody.appendChild(row);
+            });
+            
+            // Ajouter les écouteurs d'événements pour les boutons d'édition et de suppression
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditModal(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openDeleteModal(id);
+                });
+            });
+        }
+        
+        // Fonction pour ouvrir le modal d'édition
+        function openEditModal(id) {
+            const metier = metiers.find(m => m.id == id);
+            if (!metier) return;
+            
+            document.getElementById('edit_id').value = metier.id;
+            document.getElementById('edit_nom').value = metier.nom;
+            document.getElementById('edit_categorie').value = metier.categorie;
+            document.getElementById('edit_description').value = metier.description || '';
+            
+            const editModal = new bootstrap.Modal(document.getElementById('editMetierModal'));
+            editModal.show();
+        }
+        
+        // Fonction pour ouvrir le modal de suppression
+        function openDeleteModal(id) {
+            deleteMetierId = id;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteMetierModal'));
+            deleteModal.show();
+        }
+        
+        // Fonction pour ajouter un métier
+        function addMetier(formData) {
+            fetch('/admin/api/metier/new', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Fermer le modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addMetierModal'));
+                    modal.hide();
+                    
+                    // Réinitialiser le formulaire
+                    document.getElementById('addMetierForm').reset();
+                    
+                    // Recharger les métiers
+                    loadMetiers();
+                    
+                    // Réinitialiser les statistiques
+                    statsGenerated = false;
+                    
+                    // Afficher un message de succès
+                    alert('Métier ajouté avec succès');
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'ajout du métier:', error);
+                alert('Erreur lors de l\'ajout du métier');
+            });
+        }
+        
+        // Fonction pour mettre à jour un métier
+        function updateMetier(formData) {
+            const id = formData.get('id');
+            
+            fetch(`/admin/api/metier/${id}/edit`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Fermer le modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editMetierModal'));
+                    modal.hide();
+                    
+                    // Recharger les métiers
+                    loadMetiers();
+                    
+                    // Réinitialiser les statistiques
+                    statsGenerated = false;
+                    
+                    // Afficher un message de succès
+                    alert('Métier mis à jour avec succès');
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour du métier:', error);
+                alert('Erreur lors de la mise à jour du métier');
+            });
+        }
+        
+        // Fonction pour supprimer un métier
+        function deleteMetier(id) {
+            fetch(`/admin/api/metier/${id}/delete`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Fermer le modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteMetierModal'));
+                    modal.hide();
+                    
+                    // Recharger les métiers
+                    loadMetiers();
+                    
+                    // Réinitialiser les statistiques
+                    statsGenerated = false;
+                    
+                    // Réinitialiser l'ID de suppression
+                    deleteMetierId = null;
+                    
+                    // Afficher un message de succès
+                    alert('Métier supprimé avec succès');
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la suppression du métier:', error);
+                alert('Erreur lors de la suppression du métier');
+            });
+        }
+        
+        // Fonction pour générer les statistiques
+        function generateStats() {
+            // Compter les métiers par catégorie
+            const categories = {};
+            let totalMetiers = 0;
+            
+            metiers.forEach(metier => {
+                const categorie = metier.categorie;
+                if (!categories[categorie]) {
+                    categories[categorie] = 0;
+                }
+                categories[categorie]++;
+                totalMetiers++;
+            });
+            
+            // Créer le graphique
+            if (document.getElementById('metierCategoryChart')) {
+                const ctx = document.getElementById('metierCategoryChart').getContext('2d');
+                
+                // Préparation des données pour Chart.js
+                const categoryLabels = Object.keys(categories);
+                const categoryCounts = Object.values(categories);
+                
+                // Couleurs pour chaque catégorie
+                const backgroundColors = categoryLabels.map(cat => {
+                    switch(cat) {
+                        case 'Développement Web': return '#e3f2fd';
+                        case 'Développement Mobile': return '#e8f5e9';
+                        case 'Design': return '#fff3e0';
+                        case 'Marketing': return '#f3e5f5';
+                        case 'Gestion de Projet': return '#e8eaf6';
+                        case 'Rédaction': return '#ffebee';
+                        default: return '#f5f5f5';
+                    }
+                });
+                
+                // Détruire le graphique existant s'il y en a un
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+                
+                // Créer un nouveau graphique
+                chartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryCounts,
+                            backgroundColor: backgroundColors,
+                            borderColor: '#ffffff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const percentage = Math.round((value / totalMetiers) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Affichage des statistiques textuelles
+            const statsContainer = document.getElementById('metierCategoryStats');
+            if (statsContainer) {
+                let statsHTML = '';
+                
+                // Trier les catégories par nombre décroissant
+                const sortedCategories = Object.entries(categories).sort((a, b) => b[1] - a[1]);
+                
+                sortedCategories.forEach(([categorie, count]) => {
+                    const percentage = Math.round((count / totalMetiers) * 100);
+                    let categoryClass = 'cat-autre';
+                    
+                    switch(categorie) {
+                        case 'Développement Web': categoryClass = 'cat-dev-web'; break;
+                        case 'Développement Mobile': categoryClass = 'cat-dev-mobile'; break;
+                        case 'Design': categoryClass = 'cat-design'; break;
+                        case 'Marketing': categoryClass = 'cat-marketing'; break;
+                        case 'Gestion de Projet': categoryClass = 'cat-gestion'; break;
+                        case 'Rédaction': categoryClass = 'cat-redaction'; break;
+                    }
+                    
+                    statsHTML += `
+                    <div class="type-stat">
+                        <div><span class="type-badge ${categoryClass}">${categorie}</span></div>
+                        <div>${count} (${percentage}%)</div>
+                    </div>`;
+                });
+                
+                statsHTML += `
+                <div class="type-stat mt-2">
+                    <div><strong>Total</strong></div>
+                    <div><strong>${totalMetiers}</strong> métiers</div>
+                </div>`;
+                
+                statsContainer.innerHTML = statsHTML;
+            }
+        }
+    });
+    </script>
+{% endblock %}

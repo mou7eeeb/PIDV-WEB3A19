@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -11,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
+#[ORM\Table(name: '`utilisateur`')]
 #[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email')]
 // Classe représentant un utilisateur de la plateforme
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -25,6 +27,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const USER_TYPE_FORMATEUR = 'formateur';
     public const USER_TYPE_EMPLOYEUR = 'employeur';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
+    
+
     
     // Identifiant unique de l'utilisateur
     #[ORM\Id]
@@ -79,11 +83,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     // Statut actif/inactif de l'utilisateur
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $isActive = true;
-
-    // Date de dernière connexion de l'utilisateur
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $lastLogin = null;
-
 
     // Retourne l'identifiant de l'utilisateur
     public function getId(): ?int
@@ -272,20 +271,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
-
-        return $this;
-    }
-
-    // Retourne la date de dernière connexion
-    public function getLastLogin(): ?\DateTimeInterface
-    {
-        return $this->lastLogin;
-    }
-
-    // Définit la date de dernière connexion
-    public function setLastLogin(?\DateTimeInterface $lastLogin): static
-    {
-        $this->lastLogin = $lastLogin;
 
         return $this;
     }
