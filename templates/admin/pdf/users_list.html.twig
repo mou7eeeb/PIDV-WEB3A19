@@ -3,6 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <title>Liste des utilisateurs</title>
+    {% set stats = {
+        'admin': 0,
+        'freelance': 0,
+        'formateur': 0,
+        'employeur': 0,
+        'active': 0,
+        'inactive': 0,
+        'total': 0
+    } %}
+    
+    {% for user in users %}
+        {% set type = user.typeUtilisateur %}
+        {% if type == 'ROLE_ADMIN' %}
+            {% set type = 'admin' %}
+        {% endif %}
+        
+        {% if stats[type] is defined %}
+            {% set stats = stats|merge({(type): stats[type] + 1}) %}
+        {% else %}
+            {% set stats = stats|merge({(type): 1}) %}
+        {% endif %}
+        
+        {% if user.isActive %}
+            {% set stats = stats|merge({'active': stats.active + 1}) %}
+        {% else %}
+            {% set stats = stats|merge({'inactive': stats.inactive + 1}) %}
+        {% endif %}
+        
+        {% set stats = stats|merge({'total': stats.total + 1}) %}
+    {% endfor %}
+    
+    {% set stats = stats|merge({
+        'admin_percent': stats.admin > 0 ? (stats.admin / stats.total * 100)|round : 0,
+        'freelance_percent': stats.freelance > 0 ? (stats.freelance / stats.total * 100)|round : 0,
+        'formateur_percent': stats.formateur > 0 ? (stats.formateur / stats.total * 100)|round : 0,
+        'employeur_percent': stats.employeur > 0 ? (stats.employeur / stats.total * 100)|round : 0
+    }) %}
+    
+    {# Calcul des statistiques pour le graphique en courbe #}
+    {% set months = {} %}
+    {% set currentYear = "now"|date("Y") %}
+    
+    {# Initialiser les mois de l'année en cours #}
+    {% for i in 1..12 %}
+        {% set monthName = date(currentYear ~ "-" ~ i ~ "-01")|date("M") %}
+        {% set months = months|merge({(i): {name: monthName, count: 0}}) %}
+    {% endfor %}
+    
+    {# Compter les inscriptions par mois #}
+    {% for user in users %}
+        {% set month = user.dateInscription|date("n") %}
+        {% set year = user.dateInscription|date("Y") %}
+        
+        {% if year == currentYear %}
+            {% set currentCount = months[month].count %}
+            {% set months = months|merge({
+                (month): {
+                    name: months[month].name,
+                    count: currentCount + 1
+                }
+            }) %}
+        {% endif %}
+    {% endfor %}
+    
+    {# Trouver la valeur maximale pour l'échelle du graphique #}
+    {% set maxCount = 1 %}
+    {% for month in months %}
+        {% if month.count > maxCount %}
+            {% set maxCount = month.count %}
+        {% endif %}
+    {% endfor %}
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -80,12 +152,81 @@
             background-color: #fff3e0;
             color: #ed6c02;
         }
+        .type-admin {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+        }
         .status-active {
             color: green;
             font-weight: bold;
         }
         .status-inactive {
             color: red;
+            font-weight: bold;
+        }
+        .section-title {
+            background-color: #f5f5f5;
+            padding: 8px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            border-left: 4px solid #444;
+        }
+        
+        /* Styles pour les statistiques */
+        .stats-container {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stats-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+        .stats-box {
+            width: 60%;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        .stats-box-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .stats-table td {
+            padding: 5px;
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+        .stats-table tr:last-child td {
+            border-bottom: none;
+            border-top: 1px solid #ddd;
+            font-weight: bold;
+            padding-top: 8px;
+        }
+        .stats-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
             font-weight: bold;
         }
     </style>
@@ -99,6 +240,52 @@
         Généré le {{ "now"|date("d/m/Y à H:i") }}
     </div>
     
+    <!-- Statistiques des utilisateurs -->
+    <div class="stats-container">
+        <div class="stats-title">Statistiques par type d'utilisateur</div>
+        
+        <div class="stats-box">
+            <div class="stats-box-title">Répartition des utilisateurs</div>
+            
+            <table class="stats-table">
+                {% if stats.admin > 0 %}
+                <tr>
+                    <td>Admin</td>
+                    <td>{{ stats.admin }} utilisateurs ({{ stats.admin_percent }}%)</td>
+                </tr>
+                {% endif %}
+                
+                {% if stats.freelance > 0 %}
+                <tr>
+                    <td>Freelance</td>
+                    <td>{{ stats.freelance }} utilisateurs ({{ stats.freelance_percent }}%)</td>
+                </tr>
+                {% endif %}
+                
+                {% if stats.formateur > 0 %}
+                <tr>
+                    <td>Formateur</td>
+                    <td>{{ stats.formateur }} utilisateurs ({{ stats.formateur_percent }}%)</td>
+                </tr>
+                {% endif %}
+                
+                {% if stats.employeur > 0 %}
+                <tr>
+                    <td>Employeur</td>
+                    <td>{{ stats.employeur }} utilisateurs ({{ stats.employeur_percent }}%)</td>
+                </tr>
+                {% endif %}
+                
+                <tr>
+                    <td>Total</td>
+                    <td>{{ stats.total }} utilisateurs</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Tableau des administrateurs -->
+    <div class="section-title">Administrateurs</div>
     <table>
         <thead>
             <tr>
@@ -113,21 +300,60 @@
         </thead>
         <tbody>
             {% for user in users %}
+                {% if user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' %}
+                <tr>
+                    <td>{{ user.nom }}</td>
+                    <td>{{ user.prenom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="type-badge type-admin">
+                            Admin
+                        </span>
+                    </td>
+                    <td>{{ user.telephone ?: 'Non renseigné' }}</td>
+                    <td>{{ user.dateInscription|date('d/m/Y') }}</td>
+                    <td class="status-{{ user.isActive ? 'active' : 'inactive' }}">
+                        {{ user.isActive ? 'Actif' : 'Banni' }}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Tableau des utilisateurs normaux -->
+    <div class="section-title">Utilisateurs</div>
+    <table>
+        <thead>
             <tr>
-                <td>{{ user.nom }}</td>
-                <td>{{ user.prenom }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    <span class="type-badge type-{{ user.typeUtilisateur }}">
-                        {{ user.typeUtilisateur|capitalize }}
-                    </span>
-                </td>
-                <td>{{ user.telephone ?: 'Non renseigné' }}</td>
-                <td>{{ user.dateInscription|date('d/m/Y') }}</td>
-                <td class="status-{{ user.isActive ? 'active' : 'inactive' }}">
-                    {{ user.isActive ? 'Actif' : 'Inactif' }}
-                </td>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Téléphone</th>
+                <th>Inscription</th>
+                <th>Statut</th>
             </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                {% if user.typeUtilisateur != 'admin' and user.typeUtilisateur != 'ROLE_ADMIN' %}
+                <tr>
+                    <td>{{ user.nom }}</td>
+                    <td>{{ user.prenom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="type-badge type-{{ user.typeUtilisateur }}">
+                            {{ user.typeUtilisateur|capitalize }}
+                        </span>
+                    </td>
+                    <td>{{ user.telephone ?: 'Non renseigné' }}</td>
+                    <td>{{ user.dateInscription|date('d/m/Y') }}</td>
+                    <td class="status-{{ user.isActive ? 'active' : 'inactive' }}">
+                        {{ user.isActive ? 'Actif' : 'Banni' }}
+                    </td>
+                </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

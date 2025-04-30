@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test d'upload d'image{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .upload-form {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    
+    .success-message {
+        color: #28a745;
+        font-weight: bold;
+        padding: 10px;
+        background-color: #d4edda;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-weight: bold;
+        padding: 10px;
+        background-color: #f8d7da;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .info-section {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+    }
+    
+    .preview-image {
+        max-width: 300px;
+        max-height: 300px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .info-table th, .info-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    
+    .info-table th {
+        background-color: #f2f2f2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="test-container">
+    <h1 class="mb-4">Test d'upload d'image</h1>
+    
+    {% if uploadSuccess %}
+        <div class="success-message">
+            <p>Fichier téléchargé avec succès!</p>
+            <p>Chemin de l'image: {{ uploadedImagePath }}</p>
+            <img src="{{ uploadedImagePath }}" alt="Image téléchargée" class="preview-image">
+        </div>
+    {% endif %}
+    
+    {% if error %}
+        <div class="error-message">
+            <p>Erreur lors du téléchargement: {{ error }}</p>
+        </div>
+    {% endif %}
+    
+    <div class="upload-form">
+        <h3>Sélectionnez une image à télécharger</h3>
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input type="file" name="image" accept="image/*" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Télécharger</button>
+        </form>
+    </div>
+    
+    {% if fileInfo %}
+        <div class="info-section">
+            <h3>Informations du fichier</h3>
+            <table class="info-table">
+                <tr>
+                    <th>Nom</th>
+                    <td>{{ fileInfo.name }}</td>
+                </tr>
+                <tr>
+                    <th>Taille</th>
+                    <td>{{ fileInfo.size }} octets</td>
+                </tr>
+                <tr>
+                    <th>Type MIME</th>
+                    <td>{{ fileInfo.type }}</td>
+                </tr>
+                <tr>
+                    <th>Code d'erreur</th>
+                    <td>{{ fileInfo.error }}</td>
+                </tr>
+            </table>
+        </div>
+    {% endif %}
+    
+    <div class="info-section">
+        <h3>Informations système</h3>
+        <table class="info-table">
+            <tr>
+                <th>Répertoire d'upload</th>
+                <td>{{ systemInfo.uploadDir }}</td>
+            </tr>
+            <tr>
+                <th>Le répertoire existe</th>
+                <td>{{ systemInfo.dirExists ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Le répertoire est accessible en écriture</th>
+                <td>{{ systemInfo.isWritable ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Répertoire temporaire</th>
+                <td>{{ systemInfo.temporaryDir }}</td>
+            </tr>
+            <tr>
+                <th>Répertoire temporaire accessible en écriture</th>
+                <td>{{ systemInfo.temporaryDirWritable ? 'Oui' : 'Non' }}</td>
+            </tr>
+            <tr>
+                <th>Taille maximale de téléchargement</th>
+                <td>{{ systemInfo.uploadMaxFilesize }}</td>
+            </tr>
+            <tr>
+                <th>Taille maximale de POST</th>
+                <td>{{ systemInfo.postMaxSize }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,15 +14,29 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/user')]
+#[Route('/mon-profil')]
 #[IsGranted('ROLE_USER')]
 class UserProfileController extends AbstractController
 {
     // Affichage du profil utilisateur
-    #[Route('/profile', name: 'user_profile')]
-    public function profile(): Response
+    #[Route('', name: 'user_profile')]
+    public function profile(UserRepository $userRepository): Response
     {
-        return $this->render('user/profile.html.twig');
+        // Récupération de l'utilisateur connecté
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw new AccessDeniedException('Vous devez être connecté pour accéder à cette page.');
+        }
+        
+        // Récupération de l'utilisateur depuis la base de données pour avoir toutes les données à jour
+        $user = $userRepository->find($user->getId());
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvé');
+        }
+        
+        return $this->render('user/profile.html.twig', [
+            'user' => $user
+        ]);
     }
 
     // Suppression du compte utilisateur
@@ -30,12 +45,19 @@ class UserProfileController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
         LoggerInterface $logger
     ): Response {
         // Récupération de l'utilisateur connecté
         $user = $this->getUser();
         if (!$user instanceof User) {
             throw new AccessDeniedException('Vous devez être connecté pour effectuer cette action.');
+        }
+
+        // Récupération de l'utilisateur depuis la base de données pour avoir toutes les données à jour
+        $user = $userRepository->find($user->getId());
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvé');
         }
 
         // Vérification du token CSRF

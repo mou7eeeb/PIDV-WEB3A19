@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réinitialisation de mot de passe{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  :root {
+    --primary-color: #4f46e5;
+    --secondary-color: #ef4444;
+  }
+  
+  .reset-container {
+    max-width: 500px;
+    margin: 120px auto 60px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .reset-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .reset-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }
+  
+  .btn-primary-custom {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-primary-custom:hover {
+    background-color: #4338ca;
+    color: #fff;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+      <a href="{{ path('app_home') }}" class="logo d-flex align-items-center">
+        <h1 class="sitename">Freelance<span style="color: var(--secondary-color);">Connecté</span></h1>
+      </a>
+    </div>
+  </header><!-- End Header -->
+
+  <div class="container">
+    <div class="reset-container">
+      <div class="reset-header">
+        <div class="reset-icon">
+          <i class="bi bi-key"></i>
+        </div>
+        <h2>Mot de passe oublié ?</h2>
+        <p class="text-muted">Entrez votre numéro de téléphone pour recevoir un code de réinitialisation</p>
+      </div>
+      
+      {% if error %}
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+        </div>
+      {% endif %}
+      
+      {% if success %}
+        <div class="alert alert-success">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ success }}
+        </div>
+      {% endif %}
+      
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ label == 'error' ? 'danger' : label }}">
+            {% if label == 'error' or label == 'danger' %}
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {% elseif label == 'info' %}
+              <i class="bi bi-info-circle-fill me-2"></i>
+            {% else %}
+              <i class="bi bi-check-circle-fill me-2"></i>
+            {% endif %}
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+      
+      <form method="POST">
+        <div class="mb-4">
+          <label for="telephone" class="form-label">Numéro de téléphone</label>
+          <div class="input-group">
+            <span class="input-group-text">+216</span>
+            <input type="text" class="form-control" id="telephone" name="telephone" placeholder="12345678" pattern="[0-9]{8}" maxlength="8" title="Le numéro doit contenir 8 chiffres" required>
+          </div>
+          <small class="form-text text-muted">Entrez votre numéro de téléphone au format tunisien (8 chiffres)</small>
+        </div>
+        
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn-primary-custom w-100">
+            <i class="bi bi-send me-2"></i>Recevoir le code
+          </button>
+        </div>
+      </form>
+      
+      <div class="text-center mt-4">
+        <a href="{{ path('app_login') }}" class="text-decoration-none" style="color: var(--primary-color);">
+          <i class="bi bi-arrow-left me-1"></i>Retour à la connexion
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

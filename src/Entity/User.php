@@ -84,6 +84,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $isActive = true;
 
+    // Image de profil de l'utilisateur
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profileImage = null;
+
     // Retourne l'identifiant de l'utilisateur
     public function getId(): ?int
     {
@@ -271,6 +275,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    // Retourne l'image de profil de l'utilisateur
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    // Définit l'image de profil de l'utilisateur
+    public function setProfileImage(?string $profileImage): static
+    {
+        $this->profileImage = $profileImage;
 
         return $this;
     }

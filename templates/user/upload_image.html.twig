@@ -1,0 +1,275 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier ma photo de profil{% endblock %}
+
+{% block header %}
+<!-- Suppression du header pour avoir le même design que la page de sécurité -->
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  :root {
+    --primary-color: #4f46e5;
+    --secondary-color: #ef4444;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    background-color: #f9fafb;
+  }
+  
+  .profile-header {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #fff;
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  .back-arrow {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 1.5rem;
+    color: #666;
+    transition: all 0.2s ease;
+    z-index: 1000;
+  }
+  
+  .back-arrow:hover {
+    color: var(--primary-color);
+    transform: translateX(-3px);
+  }
+  
+  .profile-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 2rem;
+    border: none;
+    background-color: white;
+  }
+  
+  .profile-card-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+  }
+  
+  .btn-primary-custom {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-primary-custom:hover {
+    background-color: #4338ca;
+    color: #fff;
+  }
+  
+  .image-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 20px auto;
+    overflow: hidden;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .photo-upload-button {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    text-decoration: none;
+    color: white;
+    position: relative;
+  }
+  
+  .photo-upload-button:hover {
+    background-color: #4338ca;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .photo-upload-button .camera-icon {
+    font-size: 2.5rem;
+  }
+  
+  .list-group-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Prévisualisation de l'image
+    const imageInput = document.getElementById('profile_image_imageFile');
+    if (imageInput) {
+      imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            if (preview) {
+              preview.src = e.target.result;
+              document.querySelector('.image-preview').style.display = 'block';
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block body %}
+  <div class="profile-header">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-3 text-center">
+          <div class="profile-avatar">
+            {% if user.profileImage %}
+              <img src="{{ asset('uploads/profile_images/' ~ user.profileImage) }}" alt="{{ user.prenom }} {{ user.nom }}">
+            {% else %}
+              <i class="bi bi-person"></i>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-md-9">
+          <h2>{{ user.prenom }} {{ user.nom }}</h2>
+          <p class="text-muted mb-2">{{ user.email }}</p>
+          <p class="mb-0">
+            <span class="badge" style="background-color: var(--primary-color);">{{ user.typeUtilisateur|capitalize }}</span>
+            <span class="text-muted ms-2">Membre depuis {{ user.dateInscription|date('d/m/Y') }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <a href="{{ path('mon_compte') }}" class="back-arrow" title="Retour au profil">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="profile-card">
+          <div class="profile-card-header">
+            Menu
+          </div>
+          <div class="list-group list-group-flush">
+            <a href="{{ path('mon_compte') }}" class="list-group-item list-group-item-action">
+              <i class="bi bi-person me-2"></i> Informations personnelles
+            </a>
+            <a href="{{ path('mon_compte_securite') }}" class="list-group-item list-group-item-action">
+              <i class="bi bi-shield-lock me-2"></i> Sécurité
+            </a>
+            <a href="{{ path('app_logout') }}" class="list-group-item list-group-item-action">
+              <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-8">
+        <div class="profile-card">
+          <div class="profile-card-header">
+            Modifier ma photo de profil
+          </div>
+          <div class="card-body">
+            {% for message in app.flashes('success') %}
+              <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+              </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('error') %}
+              <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
+              </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('info') %}
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+              </div>
+            {% endfor %}
+            
+            <div class="mb-4">
+              <h5>État actuel</h5>
+              <p>Image de profil actuelle: {% if user.profileImage %}"{{ user.profileImage }}"{% else %}Aucune{% endif %}</p>
+            </div>
+            
+            <div class="image-preview" {% if not user.profileImage %}style="display: none;"{% endif %}>
+              <img id="imagePreview" src="{% if user.profileImage %}{{ asset('uploads/profile_images/' ~ user.profileImage) }}{% endif %}" alt="Prévisualisation">
+            </div>
+            
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+              <div class="mb-3">
+                {{ form_label(form.imageFile, 'Photo de profil', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                <small class="form-text text-muted">Formats acceptés : JPG, PNG, GIF. Taille maximale : 2 Mo.</small>
+                {{ form_errors(form.imageFile) }}
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ path('mon_compte') }}" class="btn btn-secondary me-md-2">Annuler</a>
+                <button type="submit" class="btn-primary-custom">Enregistrer</button>
+              </div>
+            {{ form_end(form) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
