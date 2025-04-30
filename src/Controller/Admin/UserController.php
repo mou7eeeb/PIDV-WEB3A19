@@ -156,34 +156,15 @@ class UserController extends AbstractController
             }
 
             // Récupérer les données
-            $nom = $request->request->get('nom');
-            $prenom = $request->request->get('prenom');
-            $email = $request->request->get('email');
             $typeUtilisateur = $request->request->get('type_utilisateur');
-            $telephone = $request->request->get('telephone');
-            $password = $request->request->get('password');
 
             // Vérifier les champs obligatoires
-            if (!$nom || !$prenom || !$email || !$typeUtilisateur) {
-                throw new \Exception('Tous les champs obligatoires doivent être remplis.');
+            if (!$typeUtilisateur) {
+                throw new \Exception('Le type d\'utilisateur est obligatoire.');
             }
 
-            // Vérifier l'email
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new \Exception('Format d\'email invalide.');
-            }
-
-            // Mettre à jour l'utilisateur
-            $user->setNom($nom)
-                 ->setPrenom($prenom)
-                 ->setEmail($email)
-                 ->setTypeUtilisateur($typeUtilisateur)
-                 ->setTelephone($telephone);
-
-            // Mettre à jour le mot de passe si fourni
-            if ($password) {
-                $user->setMotDePasse($userPasswordHasher->hashPassword($user, $password));
-            }
+            // Mettre à jour uniquement le type d'utilisateur
+            $user->setTypeUtilisateur($typeUtilisateur);
 
             // Sauvegarder les modifications
             $entityManager->flush();
@@ -225,34 +206,15 @@ class UserController extends AbstractController
             }
 
             // Récupérer les données
-            $nom = $request->request->get('nom');
-            $prenom = $request->request->get('prenom');
-            $email = $request->request->get('email');
             $typeUtilisateur = $request->request->get('type_utilisateur');
-            $telephone = $request->request->get('telephone');
-            $password = $request->request->get('password');
 
             // Vérifier les champs obligatoires
-            if (!$nom || !$prenom || !$email) {
-                throw new \Exception('Tous les champs obligatoires doivent être remplis.');
+            if (!$typeUtilisateur) {
+                throw new \Exception('Le type d\'utilisateur est obligatoire.');
             }
 
-            // Vérifier l'email
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new \Exception('Format d\'email invalide.');
-            }
-
-            // Mettre à jour l'utilisateur
-            $user->setNom($nom)
-                 ->setPrenom($prenom)
-                 ->setEmail($email)
-                 ->setTypeUtilisateur($typeUtilisateur)
-                 ->setTelephone($telephone);
-
-            // Mettre à jour le mot de passe si fourni
-            if ($password) {
-                $user->setMotDePasse($userPasswordHasher->hashPassword($user, $password));
-            }
+            // Mettre à jour uniquement le type d'utilisateur
+            $user->setTypeUtilisateur($typeUtilisateur);
 
             // Sauvegarder les modifications
             $entityManager->flush();
@@ -263,10 +225,6 @@ class UserController extends AbstractController
                 'message' => 'Utilisateur modifié avec succès.',
                 'user' => [
                     'id' => $user->getId(),
-                    'nom' => $user->getNom(),
-                    'prenom' => $user->getPrenom(),
-                    'email' => $user->getEmail(),
-                    'telephone' => $user->getTelephone(),
                     'typeUtilisateur' => $user->getTypeUtilisateur()
                 ]
             ];
@@ -316,6 +274,46 @@ class UserController extends AbstractController
         $filename = 'utilisateur_' . $user->getNom() . '_' . $user->getPrenom() . '.pdf';
         
         return $pdfService->generatePdfResponse($html, $filename);
+    }
+
+    // API pour bannir/débannir un utilisateur
+    #[Route('/api/user/{id}/toggle-status', name: 'admin_api_toggle_user_status', methods: ['POST'])]
+    public function toggleUserStatus(
+        Request $request, 
+        User $user, 
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger
+    ): JsonResponse {
+        try {
+            // Récupération des données
+            $data = json_decode($request->getContent(), true);
+            if (!is_array($data) || !isset($data['isActive'])) {
+                return $this->json(['error' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+            }
+            
+            $isActive = (bool)$data['isActive'];
+            
+            // Mise à jour du statut
+            $user->setIsActive($isActive);
+            $entityManager->flush();
+            
+            // Log de l'action
+            $action = $isActive ? 'réactivé' : 'banni';
+            $logger->info("L'utilisateur {$user->getId()} ({$user->getEmail()}) a été {$action} par l'administrateur.");
+            
+            return $this->json([
+                'success' => true,
+                'message' => "Le statut de l'utilisateur a été mis à jour avec succès",
+                'user' => [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'isActive' => $user->isIsActive()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $logger->error("Erreur lors de la modification du statut de l'utilisateur {$user->getId()}: " . $e->getMessage());
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     // Suppression d'un utilisateur

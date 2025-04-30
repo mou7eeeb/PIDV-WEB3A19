@@ -18,26 +18,61 @@
         .user-actions .btn {
             padding: 0.375rem 0.75rem;
             font-size: 0.875rem;
-        }
-        
-        .btn-outline-primary, .btn-outline-secondary {
-            border-width: 1px;
-            font-weight: 500;
-            box-shadow: none;
+            border-radius: 0.5rem;
+            margin-right: 0.25rem;
             transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
         
-        .btn-outline-primary:hover, .btn-outline-secondary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .user-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
         }
         
-        .rounded-pill {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        .user-actions .btn-edit {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
         }
         
-
+        .user-actions .btn-edit:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+        
+        .user-actions .btn-ban {
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+            color: #fff;
+        }
+        
+        .user-actions .btn-ban:hover {
+            background-color: #e76b00;
+            border-color: #e76b00;
+        }
+        
+        .user-actions .btn-unban {
+            background-color: #20c997;
+            border-color: #20c997;
+            color: #fff;
+        }
+        
+        .user-actions .btn-unban:hover {
+            background-color: #1ba87e;
+            border-color: #1ba87e;
+        }
+        
+        .user-actions .btn-pdf {
+            background-color: #fff;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .user-actions .btn-pdf:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #fff;
+        }
         
         .stats-box {
             border: 1px solid #dee2e6;
@@ -76,6 +111,115 @@
             background-color: #fff3e0;
             color: #ed6c02;
         }
+        
+        .header-actions .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            margin-right: 0.25rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        
+        .header-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        
+        .header-actions .btn-stats {
+            background-color: #fff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        
+        .header-actions .btn-stats:hover {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+        
+        .header-actions .btn-add {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+        
+        .header-actions .btn-add:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        
+        .header-actions .btn-pdf {
+            background-color: #fff;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .header-actions .btn-pdf:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #fff;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .status-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        
+        .status-banned {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+        
+        .user-table-container {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        
+        .user-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .user-table th:nth-child(1), /* Nom */
+        .user-table th:nth-child(2) { /* Prénom */
+            width: 12%;
+        }
+        
+        .user-table th:nth-child(3) { /* Email */
+            width: 18%;
+        }
+        
+        .user-table th:nth-child(4), /* Téléphone */
+        .user-table th:nth-child(5), /* Type */
+        .user-table th:nth-child(6) { /* Statut */
+            width: 10%;
+        }
+        
+        .user-table th:nth-child(7) { /* Date */
+            width: 12%;
+        }
+        
+        .user-table th:nth-child(8) { /* Actions */
+            width: 16%;
+        }
     </style>
 {% endblock %}
 
@@ -100,8 +244,8 @@
                 if (statsSection.style.display === 'none') {
                     statsSection.style.display = 'block';
                     showStatsBtn.innerHTML = '<i class="bi bi-x-lg me-1"></i>Fermer';
-                    showStatsBtn.classList.remove('btn-outline-primary');
-                    showStatsBtn.classList.add('btn-outline-secondary');
+                    showStatsBtn.classList.remove('btn-stats');
+                    showStatsBtn.classList.add('btn-stats-close');
                     
                     // Générer les statistiques uniquement si elles n'ont pas encore été générées
                     if (!statsGenerated) {
@@ -111,8 +255,8 @@
                 } else {
                     statsSection.style.display = 'none';
                     showStatsBtn.innerHTML = '<i class="bi bi-bar-chart-fill me-1"></i>Stats';
-                    showStatsBtn.classList.remove('btn-outline-secondary');
-                    showStatsBtn.classList.add('btn-outline-primary');
+                    showStatsBtn.classList.remove('btn-stats-close');
+                    showStatsBtn.classList.add('btn-stats');
                 }
             });
         }
@@ -252,18 +396,30 @@
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
                 const searchValue = this.value.toLowerCase();
-                const userRows = document.querySelectorAll('tbody tr');
+                const adminRows = document.querySelectorAll('.admin-table tbody tr');
+                const userRows = document.querySelectorAll('.users-table tbody tr');
                 
-                userRows.forEach(row => {
-                    const nameCell = row.querySelector('td:nth-child(1)');
-                    const name = nameCell ? nameCell.textContent.toLowerCase() : '';
-                    
-                    if (name.includes(searchValue)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                // Fonction pour filtrer les lignes
+                function filterRows(rows) {
+                    rows.forEach(row => {
+                        const nameCell = row.querySelector('td:nth-child(1)');
+                        const firstNameCell = row.querySelector('td:nth-child(2)');
+                        
+                        const name = nameCell ? nameCell.textContent.toLowerCase() : '';
+                        const firstName = firstNameCell ? firstNameCell.textContent.toLowerCase() : '';
+                        
+                        // Recherche à la fois dans le nom et le prénom
+                        if (name.includes(searchValue) || firstName.includes(searchValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Appliquer le filtre aux deux tableaux
+                filterRows(adminRows);
+                filterRows(userRows);
             });
         }
         
@@ -430,6 +586,39 @@
             }
         }
     }
+    
+    // Fonction pour bannir/débannir un utilisateur
+    function toggleUserStatus(userId, isActive) {
+        // Désactiver le bouton pour éviter les clics multiples
+        const button = event.target;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Traitement...';
+        
+        // Préparer les données et l'URL
+        const url = `/admin/api/user/${userId}/toggle-status`;
+        
+        // Envoi de la requête en arrière-plan
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ isActive: isActive })
+        });
+        
+        // Fermer le modal immédiatement
+        const modalId = isActive ? `unbanUserModal${userId}` : `banUserModal${userId}`;
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+        
+        // Rafraîchir la page immédiatement
+        window.location.reload();
+    }
     </script>
 {% endblock %}
 
@@ -447,16 +636,16 @@
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h3 class="card-title">Liste des utilisateurs</h3>
-                    <div>
-                        <button id="showStatsBtn" class="btn btn-outline-primary btn-sm me-2 rounded-pill">
+                    <div class="header-actions">
+                        <button id="showStatsBtn" class="btn btn-stats" title="Afficher les statistiques">
                             <i class="bi bi-bar-chart-fill me-1"></i>Stats
                         </button>
-                        <button class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                            <i class="bi bi-person-plus me-1"></i>Ajouter
+                        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal" title="Ajouter un utilisateur">
+                            <i class="bi bi-person-plus-fill me-1"></i>Ajouter
                         </button>
                         <!-- Bouton pour générer un PDF de tous les utilisateurs -->
-                        <a href="{{ path('admin_users_pdf') }}" class="btn btn-outline-danger ms-2" target="_blank">
-                            <i class="bi bi-file-pdf me-1"></i>PDF
+                        <a href="{{ path('admin_users_pdf') }}" class="btn btn-pdf" target="_blank" title="Générer PDF">
+                            <i class="bi bi-file-pdf-fill me-1"></i>PDF
                         </a>
                     </div>
                 </div>
@@ -497,95 +686,231 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                <!-- Tableau des administrateurs -->
+                <h4 class="mb-3">Administrateurs</h4>
+                <div class="user-table-container">
+                    <table class="table table-bordered table-striped admin-table user-table">
                         <thead>
                             <tr>
-                                
                                 <th>Nom</th>
                                 <th>Prénom</th>
                                 <th>Email</th>
                                 <th>Téléphone</th>
                                 <th>Type</th>
+                                <th>Statut</th>
                                 <th>Date d'inscription</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for user in users %}
-                            <tr data-user-id="{{ user.id }}" data-date-inscription="{{ user.dateInscription|date('U') }}">
-                                
-                                <td>{{ user.nom }}</td>
-                                <td>{{ user.prenom }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>{{ user.telephone }}</td>
-                                <td>{{ user.typeUtilisateur }}</td>
-                                <td>{{ user.dateInscription|date('d/m/Y H:i') }}</td>
-                                <td class="user-actions">
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}" title="Modifier">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                {% if user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' %}
+                                <tr data-user-id="{{ user.id }}" data-date-inscription="{{ user.dateInscription|date('U') }}">
+                                    <td>{{ user.nom }}</td>
+                                    <td>{{ user.prenom }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.telephone }}</td>
+                                    <td>{{ user.typeUtilisateur }}</td>
+                                    <td>
+                                        {% if user.isActive %}
+                                            <span class="status-badge status-active">Actif</span>
+                                        {% else %}
+                                            <span class="status-badge status-banned">Banni</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.dateInscription|date('d/m/Y H:i') }}</td>
+                                    <td class="user-actions">
+                                        <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}" title="Modifier">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
 
-                                    <!-- Modal d'édition pour l'utilisateur {{ user.id }} -->
-                                    <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ user.id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editUserModalLabel{{ user.id }}">Modifier l'utilisateur</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form id="editUserForm{{ user.id }}">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
-                                                        <div class="mb-3">
-                                                            <label for="nom{{ user.id }}" class="form-label">Nom</label>
-                                                            <input type="text" class="form-control" id="nom{{ user.id }}" name="nom" value="{{ user.nom }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="prenom{{ user.id }}" class="form-label">Prénom</label>
-                                                            <input type="text" class="form-control" id="prenom{{ user.id }}" name="prenom" value="{{ user.prenom }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="email{{ user.id }}" class="form-label">Email</label>
-                                                            <input type="email" class="form-control" id="email{{ user.id }}" name="email" value="{{ user.email }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="password{{ user.id }}" class="form-label">Mot de passe</label>
-                                                            <input type="password" class="form-control" id="password{{ user.id }}" name="password" placeholder="Laissez vide pour ne pas modifier">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="type_utilisateur{{ user.id }}" class="form-label">Type d'utilisateur</label>
-                                                            <select class="form-select" id="type_utilisateur{{ user.id }}" name="type_utilisateur" required>
-                                                                <option value="admin" {{ user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
-                                                                <option value="freelance" {{ user.typeUtilisateur == 'freelance' ? 'selected' : '' }}>Freelance</option>
-                                                                <option value="formateur" {{ user.typeUtilisateur == 'formateur' ? 'selected' : '' }}>Formateur</option>
-                                                                <option value="employeur" {{ user.typeUtilisateur == 'employeur' ? 'selected' : '' }}>Employeur</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="telephone{{ user.id }}" class="form-label">Téléphone</label>
-                                                            <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" pattern="[0-9]{8}" title="Le numéro de téléphone doit contenir 8 chiffres" required>
-                                                            <small class="form-text text-muted">Format: 8 chiffres sans espaces (ex: 12345678)</small>
-                                                        </div>
+                                        <!-- Modal d'édition pour l'utilisateur {{ user.id }} -->
+                                        <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ user.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editUserModalLabel{{ user.id }}">Modifier l'utilisateur</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="editUserForm{{ user.id }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
+                                                            <div class="mb-3">
+                                                                <label for="nom{{ user.id }}" class="form-label">Nom</label>
+                                                                <input type="text" class="form-control" id="nom{{ user.id }}" name="nom" value="{{ user.nom }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son nom</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="prenom{{ user.id }}" class="form-label">Prénom</label>
+                                                                <input type="text" class="form-control" id="prenom{{ user.id }}" name="prenom" value="{{ user.prenom }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son prénom</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="email{{ user.id }}" class="form-label">Email</label>
+                                                                <input type="email" class="form-control" id="email{{ user.id }}" name="email" value="{{ user.email }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son email</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="password{{ user.id }}" class="form-label">Mot de passe</label>
+                                                                <input type="password" class="form-control" id="password{{ user.id }}" name="password" placeholder="Modification non autorisée" disabled>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son mot de passe</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="type_utilisateur{{ user.id }}" class="form-label">Type d'utilisateur</label>
+                                                                <select class="form-select" id="type_utilisateur{{ user.id }}" name="type_utilisateur" required>
+                                                                    <option value="admin" {{ user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
+                                                                    <option value="freelance" {{ user.typeUtilisateur == 'freelance' ? 'selected' : '' }}>Freelance</option>
+                                                                    <option value="formateur" {{ user.typeUtilisateur == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                                                                    <option value="employeur" {{ user.typeUtilisateur == 'employeur' ? 'selected' : '' }}>Employeur</option>
+                                                                </select>
+                                                                <small class="form-text text-muted">Seul champ modifiable par l'administrateur</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="telephone{{ user.id }}" class="form-label">Téléphone</label>
+                                                                <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son téléphone</small>
+                                                            </div>
 
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                            <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
-                                                        </div>
-                                                    </form>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                                <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <button class="btn btn-danger btn-sm delete-user" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <!-- Bouton pour générer un PDF pour cet utilisateur -->
-                                    <a href="{{ path('admin_user_pdf', {'id': user.id}) }}" class="btn btn-outline-danger ms-2" target="_blank">
-                                        <i class="bi bi-file-pdf"></i>
-                                    </a>
-                                </td>
+                                        {% if user.isActive %}
+                                            <button class="btn btn-ban" data-bs-toggle="modal" data-bs-target="#banUserModal{{ user.id }}" title="Bannir">
+                                                <i class="bi bi-slash-circle-fill"></i>
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-unban" data-bs-toggle="modal" data-bs-target="#unbanUserModal{{ user.id }}" title="Débannir">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </button>
+                                        {% endif %}
+                                        <!-- Bouton pour générer un PDF pour cet utilisateur -->
+                                        <a href="{{ path('admin_user_pdf', {'id': user.id}) }}" class="btn btn-pdf" target="_blank" title="Générer PDF">
+                                            <i class="bi bi-file-pdf-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tableau des utilisateurs normaux -->
+                <h4 class="mb-3">Utilisateurs</h4>
+                <div class="user-table-container">
+                    <table class="table table-bordered table-striped users-table user-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Date d'inscription</th>
+                                <th>Actions</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                {% if user.typeUtilisateur != 'admin' and user.typeUtilisateur != 'ROLE_ADMIN' %}
+                                <tr data-user-id="{{ user.id }}" data-date-inscription="{{ user.dateInscription|date('U') }}">
+                                    <td>{{ user.nom }}</td>
+                                    <td>{{ user.prenom }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.telephone }}</td>
+                                    <td>{{ user.typeUtilisateur }}</td>
+                                    <td>
+                                        {% if user.isActive %}
+                                            <span class="status-badge status-active">Actif</span>
+                                        {% else %}
+                                            <span class="status-badge status-banned">Banni</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.dateInscription|date('d/m/Y H:i') }}</td>
+                                    <td class="user-actions">
+                                        <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}" title="Modifier">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+
+                                        <!-- Modal d'édition pour l'utilisateur {{ user.id }} -->
+                                        <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ user.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editUserModalLabel{{ user.id }}">Modifier l'utilisateur</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="editUserForm{{ user.id }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('edit' ~ user.id) }}">
+                                                            <div class="mb-3">
+                                                                <label for="nom{{ user.id }}" class="form-label">Nom</label>
+                                                                <input type="text" class="form-control" id="nom{{ user.id }}" name="nom" value="{{ user.nom }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son nom</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="prenom{{ user.id }}" class="form-label">Prénom</label>
+                                                                <input type="text" class="form-control" id="prenom{{ user.id }}" name="prenom" value="{{ user.prenom }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son prénom</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="email{{ user.id }}" class="form-label">Email</label>
+                                                                <input type="email" class="form-control" id="email{{ user.id }}" name="email" value="{{ user.email }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son email</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="password{{ user.id }}" class="form-label">Mot de passe</label>
+                                                                <input type="password" class="form-control" id="password{{ user.id }}" name="password" placeholder="Modification non autorisée" disabled>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son mot de passe</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="type_utilisateur{{ user.id }}" class="form-label">Type d'utilisateur</label>
+                                                                <select class="form-select" id="type_utilisateur{{ user.id }}" name="type_utilisateur" required>
+                                                                    <option value="admin" {{ user.typeUtilisateur == 'admin' or user.typeUtilisateur == 'ROLE_ADMIN' ? 'selected' : '' }}>Administrateur</option>
+                                                                    <option value="freelance" {{ user.typeUtilisateur == 'freelance' ? 'selected' : '' }}>Freelance</option>
+                                                                    <option value="formateur" {{ user.typeUtilisateur == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                                                                    <option value="employeur" {{ user.typeUtilisateur == 'employeur' ? 'selected' : '' }}>Employeur</option>
+                                                                </select>
+                                                                <small class="form-text text-muted">Seul champ modifiable par l'administrateur</small>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="telephone{{ user.id }}" class="form-label">Téléphone</label>
+                                                                <input type="tel" class="form-control" id="telephone{{ user.id }}" name="telephone" value="{{ user.telephone }}" readonly>
+                                                                <small class="form-text text-muted">Seul l'utilisateur peut modifier son téléphone</small>
+                                                            </div>
+
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                                <button type="button" class="btn btn-primary" onclick="updateUser(event, {{ user.id }})">Enregistrer les modifications</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if user.isActive %}
+                                            <button class="btn btn-ban" data-bs-toggle="modal" data-bs-target="#banUserModal{{ user.id }}" title="Bannir">
+                                                <i class="bi bi-slash-circle-fill"></i>
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-unban" data-bs-toggle="modal" data-bs-target="#unbanUserModal{{ user.id }}" title="Débannir">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </button>
+                                        {% endif %}
+                                        <!-- Bouton pour générer un PDF pour cet utilisateur -->
+                                        <a href="{{ path('admin_user_pdf', {'id': user.id}) }}" class="btn btn-pdf" target="_blank" title="Générer PDF">
+                                            <i class="bi bi-file-pdf-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -675,31 +1000,48 @@
         });
     </script>
 
-    <!-- Delete User Modals -->
+    <!-- Modals de bannissement pour chaque utilisateur -->
     {% for user in users %}
-    <div class="modal fade" id="deleteUserModal{{ user.id }}" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmer la suppression</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ user.nom }} {{ user.prenom }}</strong> ?</p>
-                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form action="{{ path('admin_user_delete', {'id': user.id}) }}" method="POST" style="display: inline;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                    </form>
+        <!-- Modal de bannissement -->
+        <div class="modal fade" id="banUserModal{{ user.id }}" tabindex="-1" aria-labelledby="banUserModalLabel{{ user.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="banUserModalLabel{{ user.id }}">Bannir l'utilisateur</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir bannir l'utilisateur <strong>{{ user.nom }} {{ user.prenom }}</strong> ?</p>
+                        <p>L'utilisateur ne pourra plus se connecter à son compte, mais ses données seront conservées.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-warning" onclick="toggleUserStatus({{ user.id }}, false)">Bannir</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+        
+        <!-- Modal de débannissement -->
+        <div class="modal fade" id="unbanUserModal{{ user.id }}" tabindex="-1" aria-labelledby="unbanUserModalLabel{{ user.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="unbanUserModalLabel{{ user.id }}">Réactiver l'utilisateur</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir réactiver l'utilisateur <strong>{{ user.nom }} {{ user.prenom }}</strong> ?</p>
+                        <p>L'utilisateur pourra à nouveau se connecter à son compte.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-success" onclick="toggleUserStatus({{ user.id }}, true)">Réactiver</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endfor %}
-
     <!-- Modal des conditions d'utilisation -->
     <div class="modal fade" id="conditionsModal" tabindex="-1" aria-labelledby="conditionsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">

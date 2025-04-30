@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -72,6 +73,12 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
                 if (!$user) {
                     error_log('User not found with email: ' . $userIdentifier);
                     throw new UserNotFoundException();
+                }
+                
+                // Vérifier si l'utilisateur est banni (compte inactif)
+                if (!$user->isActive()) {
+                    error_log('Banned user attempted to login: ' . $userIdentifier);
+                    throw new CustomUserMessageAuthenticationException('Votre compte a été désactivé. Veuillez contacter l\'administrateur pour plus d\'informations.');
                 }
                 
                 error_log('User found: ID=' . $user->getId() . ', Type=' . $user->getTypeUtilisateur());
