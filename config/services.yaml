@@ -1,9 +1,9 @@
 parameters:
     # Paramètres Twilio
-    twilio.sid: 'AC6516f47007361c052a20f8965d34710d'
-    twilio.token: '9b81905de882049790ac8edd96352001'
-    twilio.verify_service_sid: 'VA4b1ac036b9b344058a71e6399c05efb6'
-    twilio.dev_mode: false
+    twilio.sid: '%env(TWILIO_SID)%'
+    twilio.token: '%env(TWILIO_TOKEN)%'
+    twilio.verify_service_sid: '%env(TWILIO_VERIFY_SID)%'
+    twilio.dev_mode: '%env(bool:TWILIO_DEV_MODE)%'
     # Paramètres pour l'upload d'images
     profile_images_directory: '%kernel.project_dir%/public/uploads/profile_images'
 
