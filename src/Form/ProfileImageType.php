@@ -20,20 +20,21 @@ class ProfileImageType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '2M',
+                        'maxSize' => '5M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
                             'image/gif',
                         ],
                         'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG, PNG ou GIF)',
+                        'groups' => ['upload_image']
                     ])
                 ],
                 'attr' => [
                     'class' => 'form-control',
                     'accept' => 'image/*'
                 ],
-                'help' => 'Formats acceptés : JPG, PNG, GIF. Taille maximale : 2 Mo.'
+                'help' => 'Formats acceptés : JPG, PNG, GIF. Taille maximale : 5 Mo.'
             ]);
     }
 
@@ -41,6 +42,10 @@ class ProfileImageType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id' => 'profile_image_upload',
+            'validation_groups' => ['upload_image'],
         ]);
     }
 }

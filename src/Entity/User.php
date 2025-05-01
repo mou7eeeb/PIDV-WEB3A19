@@ -85,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isActive = true;
 
     // Image de profil de l'utilisateur
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: "profile_image", length: 255, nullable: true)]
     private ?string $profileImage = null;
 
     // Retourne l'identifiant de l'utilisateur

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,13 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, SluggerInterface $slugger = null): Response
+    public function register(
+        Request $request, 
+        UserPasswordHasherInterface $userPasswordHasher, 
+        EntityManagerInterface $entityManager, 
+        EmailService $emailService,
+        SluggerInterface $slugger = null
+    ): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -110,7 +117,18 @@ class RegistrationController extends AbstractController
                     try {
                         $entityManager->flush();
                         error_log('Utilisateur persisté avec succès. ID: ' . $user->getId());
-                        $this->addFlash('success', 'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.');
+                        
+                        // Envoi de l'email de confirmation d'inscription
+                        try {
+                            $fullName = $user->getPrenom() . ' ' . $user->getNom();
+                            $emailService->sendRegistrationConfirmationEmail($user->getEmail(), $fullName);
+                            error_log('Email de confirmation envoyé à: ' . $user->getEmail());
+                        } catch (\Exception $emailException) {
+                            error_log('Erreur lors de l\'envoi de l\'email de confirmation: ' . $emailException->getMessage());
+                            // Ne pas bloquer l'inscription si l'envoi d'email échoue
+                        }
+                        
+                        $this->addFlash('success', 'Votre compte a été créé avec succès. Un email de confirmation vous a été envoyé. Vous pouvez maintenant vous connecter.');
                         return $this->redirectToRoute('app_login');
                     } catch (\Exception $flushException) {
                         error_log('Erreur lors du flush: ' . $flushException->getMessage());

@@ -416,7 +416,7 @@
                         {% endfor %}
                     {% endfor %}
 
-                    <form method="post" action="{{ path('app_login') }}">
+                    <form method="post" action="/login">
                         {% if error %}
                             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                         {% endif %}
@@ -439,7 +439,7 @@
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
                         <div class="auth-links">
-                            <a href="#">Mot de passe oublié ?</a>
+                            <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
                         </div>
 
                         <button type="submit" class="btn-auth">Se connecter</button>

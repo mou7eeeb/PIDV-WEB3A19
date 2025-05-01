@@ -1,11 +1,14 @@
 parameters:
     # Paramètres Twilio
-    twilio.sid: 'AC6516f47007361c052a20f8965d34710d'
-    twilio.token: '9b81905de882049790ac8edd96352001'
-    twilio.verify_service_sid: 'VA4b1ac036b9b344058a71e6399c05efb6'
+    twilio.sid: 'AC5060575d9652b81311ef560448491495'
+    twilio.token: '658ea8a2807320b08c41538b32f71ae5'
+    twilio.phone_number: '+19787758522'
     twilio.dev_mode: false
     # Paramètres pour l'upload d'images
     profile_images_directory: '%kernel.project_dir%/public/uploads/profile_images'
+    general_images_directory: '%kernel.project_dir%/public/uploads/images'
+    # Paramètres pour l'envoi d'emails
+    sender_email: 'no-reply@votre-domaine.com'
 
 services:
     _defaults:
@@ -30,10 +33,22 @@ services:
         arguments:
             $twilioSid: '%twilio.sid%'
             $twilioToken: '%twilio.token%'
-            $twilioVerifyServiceSid: '%twilio.verify_service_sid%'
+            $twilioPhoneNumber: '%twilio.phone_number%'
             $isDev: '%twilio.dev_mode%'
+            $logger: '@logger'
             
     # Configuration du service d'upload de fichiers
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%profile_images_directory%'
+
+    # Configuration du contrôleur d'upload d'images
+    App\Controller\ImageUploadController:
+        arguments:
+            $generalImagesDirectory: '%general_images_directory%'
+
+    # Configuration du service EmailService
+    App\Service\EmailService:
+        arguments:
+            $mailer: '@mailer'
+            $twig: '@twig'

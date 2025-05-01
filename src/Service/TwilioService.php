@@ -12,7 +12,7 @@ class TwilioService
 {
     private string $twilioSid;
     private string $twilioToken;
-    private string $twilioVerifyServiceSid;
+    private string $twilioPhoneNumber;
     private bool $isDev;
     private LoggerInterface $logger;
 
@@ -22,19 +22,19 @@ class TwilioService
     public function __construct(
         string $twilioSid,
         string $twilioToken,
-        string $twilioVerifyServiceSid,
+        string $twilioPhoneNumber,
         bool $isDev,
         LoggerInterface $logger
     ) {
         $this->twilioSid = $twilioSid;
         $this->twilioToken = $twilioToken;
-        $this->twilioVerifyServiceSid = $twilioVerifyServiceSid;
+        $this->twilioPhoneNumber = $twilioPhoneNumber;
         $this->isDev = $isDev;
         $this->logger = $logger;
     }
 
     /**
-     * Envoie un code de vérification via Twilio Verify
+     * Envoie un code de vérification via SMS Twilio
      *
      * @param string $to Numéro de téléphone destinataire (format international)
      * @return array Résultat de l'envoi (success, message, sid)
@@ -67,10 +67,13 @@ class TwilioService
             // Nettoyage du numéro (suppression des espaces, tirets, etc.)
             $to = preg_replace('/[^0-9+]/', '', $to);
             
+            // Génération du code de vérification
+            $code = sprintf('%06d', mt_rand(1, 999999));
+            
             // Log des informations de configuration
-            $this->logger->info('Tentative d\'envoi de code de vérification avec Twilio Verify', [
+            $this->logger->info('Tentative d\'envoi de code de vérification avec Twilio SMS', [
                 'to' => $to,
-                'service_sid' => $this->twilioVerifyServiceSid,
+                'from' => $this->twilioPhoneNumber,
                 'sid' => $this->twilioSid,
                 'token_masked' => substr($this->twilioToken, 0, 4) . '...' . substr($this->twilioToken, -4),
                 'is_dev' => $this->isDev ? 'true' : 'false'
@@ -79,49 +82,64 @@ class TwilioService
             // Vérification des identifiants
             if (empty($this->twilioSid) || strlen($this->twilioSid) < 10 || 
                 empty($this->twilioToken) || strlen($this->twilioToken) < 10 ||
-                empty($this->twilioVerifyServiceSid) || strlen($this->twilioVerifyServiceSid) < 10) {
-                throw new \Exception('Identifiants Twilio ou Service SID invalides ou manquants');
+                empty($this->twilioPhoneNumber)) {
+                throw new \Exception('Identifiants Twilio ou numéro de téléphone invalides ou manquants');
             }
             
             // Initialisation du client Twilio
             $client = new Client($this->twilioSid, $this->twilioToken);
             
-            // Envoi du code de vérification via Twilio Verify
-            $verification = $client->verify->v2->services($this->twilioVerifyServiceSid)
-                ->verifications
-                ->create($to, "sms");
+            // Préparation du message
+            $message = "Votre code de vérification est: $code";
+            
+            // Envoi du SMS via Twilio
+            $sms = $client->messages->create(
+                $to,
+                [
+                    'from' => $this->twilioPhoneNumber,
+                    'body' => $message
+                ]
+            );
             
             $this->logger->info('Code de vérification envoyé à {to} avec succès, SID: {sid}', [
                 'to' => $to,
-                'sid' => $verification->sid
+                'sid' => $sms->sid
             ]);
+            
+            // Stockage temporaire du code pour vérification ultérieure
+            // Normalement, il faudrait stocker cela en base de données ou dans une session
+            // Mais pour simplifier, on le stocke dans un fichier temporaire
+            $codeData = [
+                'code' => $code,
+                'phone' => $to,
+                'expires' => time() + 600 // 10 minutes d'expiration
+            ];
+            
+            $tempFile = sys_get_temp_dir() . '/twilio_code_' . md5($to) . '.json';
+            file_put_contents($tempFile, json_encode($codeData));
             
             return [
                 'success' => true,
                 'message' => 'Code de vérification envoyé avec succès',
-                'sid' => $verification->sid
+                'sid' => $sms->sid
             ];
         } catch (\Exception $e) {
             // Log détaillé de l'erreur
             $this->logger->error('Erreur détaillée lors de l\'envoi du code de vérification à {to}: {error}', [
                 'to' => $to,
                 'error' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'trace' => $e->getTraceAsString()
             ]);
             
-            // Vérification des erreurs courantes
+            // Analyse des erreurs courantes
             $errorMessage = 'Erreur lors de l\'envoi du code de vérification';
             
             if (strpos($e->getMessage(), 'authenticate') !== false) {
                 $errorMessage = 'Erreur d\'authentification Twilio. Vérifiez vos identifiants SID et Token.';
             } elseif (strpos($e->getMessage(), 'not a valid phone') !== false) {
                 $errorMessage = 'Le numéro de téléphone n\'est pas valide.';
-            } elseif (strpos($e->getMessage(), 'trial account') !== false) {
-                $errorMessage = 'Votre compte d\'essai Twilio ne peut envoyer des codes qu\'aux numéros vérifiés.';
-            } elseif (strpos($e->getMessage(), 'service') !== false) {
-                $errorMessage = 'Le service Twilio Verify n\'est pas correctement configuré.';
+            } elseif (strpos($e->getMessage(), 'unverified') !== false) {
+                $errorMessage = 'Le numéro de téléphone n\'est pas vérifié. Vérifiez votre compte Twilio.';
             }
             
             return [
@@ -133,7 +151,7 @@ class TwilioService
     }
     
     /**
-     * Vérifie un code de vérification via Twilio Verify
+     * Vérifie un code de vérification
      *
      * @param string $to Numéro de téléphone destinataire (format international)
      * @param string $code Code de vérification à vérifier
@@ -169,24 +187,33 @@ class TwilioService
             $to = preg_replace('/[^0-9+]/', '', $to);
             
             // Log des informations de vérification
-            $this->logger->info('Tentative de vérification de code avec Twilio Verify', [
+            $this->logger->info('Tentative de vérification de code', [
                 'to' => $to,
-                'code_length' => strlen($code),
-                'service_sid' => $this->twilioVerifyServiceSid
+                'code_length' => strlen($code)
             ]);
             
-            // Initialisation du client Twilio
-            $client = new Client($this->twilioSid, $this->twilioToken);
+            // Récupération du code stocké
+            $tempFile = sys_get_temp_dir() . '/twilio_code_' . md5($to) . '.json';
             
-            // Vérification du code via Twilio Verify
-            $verificationCheck = $client->verify->v2->services($this->twilioVerifyServiceSid)
-                ->verificationChecks
-                ->create([
-                    'to' => $to,
-                    'code' => $code
-                ]);
+            if (!file_exists($tempFile)) {
+                throw new \Exception('Aucun code de vérification n\'a été envoyé à ce numéro.');
+            }
             
-            $isValid = $verificationCheck->valid;
+            $codeData = json_decode(file_get_contents($tempFile), true);
+            
+            // Vérification de l'expiration
+            if (time() > $codeData['expires']) {
+                unlink($tempFile); // Suppression du fichier expiré
+                throw new \Exception('Le code de vérification a expiré.');
+            }
+            
+            // Vérification du code
+            $isValid = $code === $codeData['code'];
+            
+            // Si le code est valide, on supprime le fichier
+            if ($isValid) {
+                unlink($tempFile);
+            }
             
             $this->logger->info('Vérification de code pour {to}: {result}', [
                 'to' => $to,
@@ -215,7 +242,7 @@ class TwilioService
                 $errorMessage = 'Le numéro de téléphone n\'est pas valide.';
             } elseif (strpos($e->getMessage(), 'expired') !== false) {
                 $errorMessage = 'Le code de vérification a expiré.';
-            } elseif (strpos($e->getMessage(), 'pending') !== false) {
+            } elseif (strpos($e->getMessage(), 'Aucun code') !== false) {
                 $errorMessage = 'Aucun code de vérification n\'a été envoyé à ce numéro.';
             }
             
