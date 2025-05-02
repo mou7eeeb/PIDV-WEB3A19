@@ -1,0 +1,373 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des inscriptions - FreelanceConnect{% endblock %}
+
+{% block page_title %}Gestion des inscriptions{% endblock %}
+{% block breadcrumb %}Inscriptions{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.1/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Styles communs */
+    .badge-soft-success {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+    
+    .badge-soft-danger {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+    
+    .badge-soft-warning {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #856404;
+    }
+    
+    .badge-soft-info {
+        background-color: rgba(23, 162, 184, 0.15);
+        color: #17a2b8;
+    }
+    
+    /* Boutons modernes */
+    .btn-modern {
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: none;
+        font-size: 14px;
+    }
+    
+    .btn-modern:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-modern:active {
+        transform: translateY(0);
+    }
+    
+    .btn-modern i {
+        margin-right: 6px;
+        font-size: 1em;
+    }
+    
+    .btn-modern-primary {
+        background: #5c7cfa;
+        color: white;
+    }
+    
+    .btn-modern-primary:hover {
+        color: white;
+        background: #4c6ef5;
+    }
+    
+    .btn-modern-info {
+        background: #15aabf;
+        color: white;
+    }
+    
+    .btn-modern-info:hover {
+        color: white;
+        background: #1098ac;
+    }
+    
+    .btn-modern-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.1rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #dee2e6;
+        background-color: white;
+    }
+    
+    .btn-modern-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Data Tables */
+    .dataTables_wrapper .dataTables_length, 
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_info, 
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        margin: 0 0.2rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--gray-200);
+        border-color: var(--gray-300);
+    }
+    
+    /* Action Buttons */
+    .btn-view {
+        color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    
+    .btn-view:hover {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .btn-edit {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+    
+    .btn-edit:hover {
+        background-color: #ffc107;
+        color: white;
+    }
+    
+    .btn-delete {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .animate-pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Inscriptions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="m-0 font-weight-bold">Liste des inscriptions</h6>
+            <div class="d-flex gap-3">
+                <div class="btn-group me-2" role="group" aria-label="Tri par date">
+                    <a href="{{ path('admin_inscription_index', {'sort': 'DESC'}) }}" class="btn btn-sm {{ currentSort == 'DESC' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        <i class="bi bi-sort-down"></i> Plus récentes
+                    </a>
+                    <a href="{{ path('admin_inscription_index', {'sort': 'ASC'}) }}" class="btn btn-sm {{ currentSort == 'ASC' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        <i class="bi bi-sort-up"></i> Plus anciennes
+                    </a>
+                </div>
+                <a href="{{ path('admin_inscription_export_all_pdf') }}" class="btn btn-modern btn-modern-info">
+                    <i class="bi bi-file-pdf"></i>Exporter PDF
+                </a>
+                <a href="{{ path('admin_inscription_new') }}" class="btn btn-modern btn-modern-primary">
+                    <i class="bi bi-plus-circle"></i>Nouvelle inscription
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if inscriptions|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="inscriptionsTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID Utilisateur</th>
+                                <th>ID Formation</th>
+                                <th>
+                                    Date d'inscription
+                                    <div class="d-inline-block ms-1">
+                                        <a href="{{ path('admin_inscription_index', {'sort': 'DESC'}) }}" class="{{ currentSort == 'DESC' ? 'text-primary' : 'text-muted' }}">
+                                            <i class="bi bi-caret-down-fill small"></i>
+                                        </a>
+                                        <a href="{{ path('admin_inscription_index', {'sort': 'ASC'}) }}" class="{{ currentSort == 'ASC' ? 'text-primary' : 'text-muted' }}">
+                                            <i class="bi bi-caret-up-fill small"></i>
+                                        </a>
+                                    </div>
+                                </th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for inscription in inscriptions %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-primary me-2">
+                                            <i class="bi bi-person"></i>
+                                        </span>
+                                        {{ inscription.userId }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-info me-2">
+                                            <i class="bi bi-journal-text"></i>
+                                        </span>
+                                        {{ inscription.formationId }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-soft-info rounded-pill">
+                                        <i class="bi bi-calendar-check me-1"></i>
+                                        {{ inscription.dateInscription ? inscription.dateInscription|date('d/m/Y H:i') : '' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center table-actions">
+                                        <a href="{{ path('admin_inscription_show', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-info" title="Voir">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('admin_inscription_edit', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-warning" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('admin_inscription_export_single_pdf', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-primary" title="Exporter PDF">
+                                            <i class="bi bi-file-pdf"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-modern-action btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ inscription.id }}" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmation de suppression -->
+                                    <div class="modal fade" id="deleteModal{{ inscription.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ inscription.id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-danger text-white">
+                                                    <h5 class="modal-title" id="deleteModalLabel{{ inscription.id }}">
+                                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                        Confirmer la suppression
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Êtes-vous sûr de vouloir supprimer cette inscription ?</p>
+                                                    <div class="alert alert-warning">
+                                                        <div class="d-flex">
+                                                            <div class="flex-shrink-0">
+                                                                <i class="bi bi-info-circle-fill fs-4"></i>
+                                                            </div>
+                                                            <div class="flex-grow-1 ms-3">
+                                                                <h6 class="alert-heading mb-1">Détails de l'inscription</h6>
+                                                                <p class="mb-0">
+                                                                    <strong>ID Utilisateur:</strong> {{ inscription.userId }}<br>
+                                                                    <strong>ID Formation:</strong> {{ inscription.formationId }}<br>
+                                                                    <strong>Date:</strong> {{ inscription.dateInscription ? inscription.dateInscription|date('d/m/Y H:i') : '' }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                                                    <form method="post" action="{{ path('admin_inscription_delete', {'id': inscription.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ inscription.id) }}">
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="bi bi-trash me-1"></i>Supprimer définitivement
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="avatar-lg mx-auto mb-4">
+                        <div class="avatar-title bg-light text-primary rounded-circle">
+                            <i class="bi bi-person-plus fs-1"></i>
+                        </div>
+                    </div>
+                    <h5>Aucune inscription trouvée</h5>
+                    <p class="text-muted">Commencez par créer votre première inscription pour voir les données ici.</p>
+                    <a href="{{ path('admin_inscription_new') }}" class="btn btn-modern btn-modern-primary mt-3">
+                        <i class="bi bi-plus-circle me-2"></i>Créer une nouvelle inscription
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.1/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialisation de DataTable
+        $('#inscriptionsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.1/i18n/fr-FR.json'
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tous"]],
+            responsive: true,
+            // Désactiver le tri automatique car nous utilisons notre propre tri par date
+            "order": [],
+            "columnDefs": [
+                { "orderable": false, "targets": [3] } // Désactiver le tri pour la colonne des actions
+            ]
+        });
+        
+        // Conserver le paramètre de tri lors de la recherche
+        $('.dataTables_filter input').on('keyup', function() {
+            var table = $('#inscriptionsTable').DataTable();
+            var currentUrl = new URL(window.location.href);
+            var sortParam = currentUrl.searchParams.get('sort');
+            
+            // Ajouter le paramètre de tri aux liens de pagination
+            table.on('draw', function() {
+                if (sortParam) {
+                    $('.paginate_button:not(.previous):not(.next)').each(function() {
+                        var pageUrl = $(this).attr('href');
+                        if (pageUrl && !pageUrl.includes('sort=')) {
+                            $(this).attr('href', pageUrl + '&sort=' + sortParam);
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

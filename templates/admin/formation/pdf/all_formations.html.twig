@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des formations</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #15222b;
+            margin: 0;
+            padding: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #666;
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+            text-align: left;
+            padding: 10px;
+        }
+        td {
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .badge-primary {
+            background-color: #cfe2ff;
+            color: #0d6efd;
+        }
+        .badge-info {
+            background-color: #cff4fc;
+            color: #0dcaf0;
+        }
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .text-truncate {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Liste des formations</h1>
+        <p>Généré le {{ "now"|date("d/m/Y à H:i") }}</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Publication ID</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Durée</th>
+                <th>Places</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for formation in formations %}
+                <tr>
+                    <td>{{ formation.id }}</td>
+                    <td>
+                        <span class="badge badge-primary">{{ formation.publicationId }}</span>
+                    </td>
+                    <td>
+                        <strong>{{ formation.nom }}</strong>
+                    </td>
+                    <td>
+                        {% if formation.description %}
+                            <span class="text-truncate">{{ formation.description|slice(0, 100) }}{% if formation.description|length > 100 %}...{% endif %}</span>
+                        {% else %}
+                            <em>Aucune description</em>
+                        {% endif %}
+                    </td>
+                    <td>{{ formation.duree }}h</td>
+                    <td>
+                        {% if formation.nombrePlaces > 10 %}
+                            <span class="badge badge-success">{{ formation.nombrePlaces }}</span>
+                        {% elseif formation.nombrePlaces > 0 %}
+                            <span class="badge badge-warning">{{ formation.nombrePlaces }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">Complet</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ formation.prix|number_format(2, ',', ' ') }} €</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Total des formations : {{ formations|length }}</p>
+        <p>Document généré automatiquement - {{ "now"|date("d/m/Y") }}</p>
+    </div>
+</body>
+</html>

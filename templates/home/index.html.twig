@@ -1,0 +1,675 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FreelanceConnect - Trouvez les meilleurs talents{% endblock %}
+
+{% block stylesheets %}
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary-color: #7209b7;
+        --accent-color: #4cc9f0;
+        --dark-color: #1f2937;
+        --light-color: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --border-radius-sm: 0.25rem;
+        --border-radius: 0.5rem;
+        --border-radius-lg: 1rem;
+        --box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    body {
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background-color: var(--light-color);
+        color: var(--gray-700);
+        line-height: 1.6;
+    }
+    
+    /* Header Styles */
+    .site-header {
+        background-color: #fff;
+        box-shadow: var(--box-shadow);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        padding: 1rem 0;
+    }
+    
+    .site-header .navbar-brand {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        letter-spacing: -0.5px;
+    }
+    
+    .site-header .nav-link {
+        font-weight: 500;
+        color: var(--gray-700);
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .site-header .nav-link:hover {
+        color: var(--primary-color);
+    }
+    
+    .site-header .btn {
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+    }
+    
+    .site-header .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .site-header .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+    
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI3OTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBmaWxsPSIjRkZGIiBkPSJNMCAwaDEyMDB2ODAwSDB6Ii8+PHBhdGggZD0iTTEyMDAgMEgwdjgwMGgxMjAwVjB6IiBmaWxsPSIjRkZGIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNMTMxLjUgNzAzLjVjLTExLjMzMy0xMS4zMzMtMTEuMzMzLTI5LjgzMyAwLTQxLjE2NyAxMS4zMzQtMTEuMzMzIDI5LjgzNC0xMS4zMzMgNDEuMTY3IDBsMjQ3LjUgMjQ3LjVjMTEuMzM0IDExLjMzNCAxMS4zMzQgMjkuODM0IDAgNDEuMTY3LTExLjMzMyAxMS4zMzQtMjkuODMzIDExLjMzNC00MS4xNjcgMGwtMjQ3LjUtMjQ3LjV6TTEwNjguNSA3MDMuNWMtMTEuMzMgMTEuMzMzLTI5LjgzIDExLjMzMy00MS4xNiAwLTExLjM0LTExLjMzNC0xMS4zNC0yOS44MzQgMC00MS4xNjdsMjQ3LjUtMjQ3LjVjMTEuMzMtMTEuMzMzIDI5LjgzLTExLjMzMyA0MS4xNyAwIDExLjMzIDExLjMzMyAxMS4zMyAyOS44MzMgMCA0MS4xNjdsLTI0Ny41IDI0Ny41ek02MDAgMGMxNi41NjkgMCAzMCAxMy40MzEgMzAgMzB2NzQwYzAgMTYuNTY5LTEzLjQzMSAzMC0zMCAzMC0xNi41NjkgMC0zMC0xMy40MzEtMzAtMzBWMzBjMC0xNi41NjkgMTMuNDMxLTMwIDMwLTMweiIgZmlsbD0idXJsKCNhKSIgZmlsbC1ydWxlPSJub256ZXJvIiBvcGFjaXR5PSIuMDUiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNzEgMTk2KSIgZmlsbD0idXJsKCNiKSIgZmlsbC1ydWxlPSJub256ZXJvIiBvcGFjaXR5PSIuMiI+PGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNjAiLz48Y2lyY2xlIGN4PSI4NTAiIGN5PSI2MCIgcj0iNjAiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjQwMCIgcj0iNjAiLz48Y2lyY2xlIGN4PSI4NTAiIGN5PSI0MDAiIHI9IjYwIi8+PGNpcmNsZSBjeD0iNDYwIiBjeT0iMjMwIiByPSI2MCIvPjwvZz48ZGVmcz48bGluZWFyR3JhZGllbnQgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSIgaWQ9ImEiPjxzdG9wIHN0b3AtY29sb3I9IiNGRkYiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjNkI3MjgwIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIiBpZD0iYiI+PHN0b3Agc3RvcC1jb2xvcj0iI0ZGRiIgb2Zmc2V0PSIwJSIvPjxzdG9wIHN0b3AtY29sb3I9IiM2QjcyODAiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjwvZz48L3N2Zz4=');
+        background-size: cover;
+        opacity: 0.1;
+    }
+    
+    .hero-section h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.025em;
+    }
+    
+    .hero-section p {
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+        opacity: 0.9;
+    }
+    
+    .hero-section .btn {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+    
+    .hero-section .btn-light {
+        background-color: white;
+        color: var(--primary-color);
+    }
+    
+    .hero-section .btn-light:hover {
+        background-color: var(--gray-100);
+        transform: translateY(-3px);
+        box-shadow: var(--box-shadow-lg);
+    }
+    
+    .hero-section .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
+    }
+    
+    /* Formations Section */
+    .formations-section {
+        padding: 5rem 0;
+        background-color: var(--light-color);
+    }
+    
+    .section-title {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .section-title h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+        letter-spacing: -0.025em;
+    }
+    
+    .section-title p {
+        font-size: 1.125rem;
+        color: var(--gray-500);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .formation-card {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .formation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-lg);
+    }
+    
+    .formation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        z-index: 2;
+    }
+    
+    .formation-card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .formation-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 0.5rem;
+    }
+    
+    .formation-card-body {
+        padding: 1.5rem;
+    }
+    
+    .formation-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem;
+    }
+    
+    .formation-info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .formation-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .formation-info-label {
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+    
+    .formation-info-value {
+        color: var(--gray-800);
+        font-weight: 600;
+    }
+    
+    .formation-card-footer {
+        padding: 1.5rem;
+        background-color: var(--gray-100);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+    }
+    
+    /* Features Section */
+    .features-section {
+        padding: 5rem 0;
+        background-color: white;
+    }
+    
+    .feature-card {
+        text-align: center;
+        padding: 2rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+        color: var(--gray-500);
+        margin-bottom: 0;
+    }
+    
+    /* Footer */
+    .site-footer {
+        background-color: var(--gray-800);
+        color: var(--gray-300);
+        padding: 4rem 0 2rem;
+    }
+    
+    .footer-title {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links li {
+        margin-bottom: 0.75rem;
+    }
+    
+    .footer-links a {
+        color: var(--gray-300);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+        color: white;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .social-link:hover {
+        background-color: var(--primary-color);
+        transform: translateY(-3px);
+    }
+    
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        text-align: center;
+        color: var(--gray-400);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Header -->
+<header class="site-header">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ path('app_home') }}">
+                    <span class="text-primary">Freelance</span>Connect
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ path('app_home') }}">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_formations') }}">Formations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Freelances</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Entreprises</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-primary me-2">Connexion</a>
+                        <a href="#" class="btn btn-primary">Inscription</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>Développez vos compétences<br>avec nos formations</h1>
+        <p>Découvrez des formations professionnelles de qualité pour booster votre carrière et rester compétitif sur le marché du travail.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_formations') }}" class="btn btn-light">Voir les formations</a>
+            <a href="#" class="btn btn-outline-light">En savoir plus</a>
+        </div>
+    </div>
+</section>
+
+<!-- Formations Section -->
+<section class="formations-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Nos formations disponibles</h2>
+            <p>Explorez notre catalogue de formations et trouvez celle qui correspond à vos besoins professionnels</p>
+        </div>
+        
+        <div class="row">
+            {% if formations|length > 0 %}
+                {% for formation in formations %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="formation-card">
+                            <div class="formation-card-header">
+                                <h3 class="formation-card-title">
+                                    {% if formation.nom is defined and formation.nom %}
+                                        {{ formation.nom }}
+                                    {% else %}
+                                        {{ formation.publicationId }}
+                                    {% endif %}
+                                </h3>
+                                {% if formation.nom is defined and formation.nom %}
+                                    <div class="formation-card-id">{{ formation.publicationId }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="formation-card-body">
+                                {% if formation.description is defined and formation.description %}
+                                <div class="formation-description mb-3">
+                                    {{ formation.description|length > 100 ? formation.description|slice(0, 100) ~ '...' : formation.description }}
+                                </div>
+                                {% endif %}
+                                <ul class="formation-info-list">
+                                    <li class="formation-info-item">
+                                        <span class="formation-info-label">
+                                            <i class="bi bi-clock me-2"></i>Durée
+                                        </span>
+                                        <span class="formation-info-value">{{ formation.duree }} heures</span>
+                                    </li>
+                                    <li class="formation-info-item">
+                                        <span class="formation-info-label">
+                                            <i class="bi bi-people me-2"></i>Places disponibles
+                                        </span>
+                                        <span class="formation-info-value">{{ formation.nombrePlaces }}</span>
+                                    </li>
+                                    <li class="formation-info-item">
+                                        <span class="formation-info-label">
+                                            <i class="bi bi-currency-euro me-2"></i>Prix
+                                        </span>
+                                        <span class="formation-info-value">{{ formation.prix }} €</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="formation-card-footer">
+                                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#inscriptionModal{{ formation.id }}">
+                                    S'inscrire
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal d'inscription pour la formation -->
+                    <div class="modal fade" id="inscriptionModal{{ formation.id }}" tabindex="-1" aria-labelledby="inscriptionModalLabel{{ formation.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="inscriptionModalLabel{{ formation.id }}">
+                                        Inscription à la formation: 
+                                        {% if formation.nom is defined and formation.nom %}
+                                            {{ formation.nom }}
+                                        {% else %}
+                                            {{ formation.publicationId }}
+                                        {% endif %}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="inscription-details mb-4">
+                                        <h6 class="mb-3">Détails de la formation</h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Formation:</span>
+                                                <span class="fw-bold">
+                                                    {% if formation.nom is defined and formation.nom %}
+                                                        {{ formation.nom }}
+                                                    {% else %}
+                                                        {{ formation.publicationId }}
+                                                    {% endif %}
+                                                </span>
+                                            </li>
+                                            {% if formation.nom is defined and formation.nom %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Référence:</span>
+                                                <span>{{ formation.publicationId }}</span>
+                                            </li>
+                                            {% endif %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Durée:</span>
+                                                <span>{{ formation.duree }} heures</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Prix:</span>
+                                                <span>{{ formation.prix }} €</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Date d'inscription:</span>
+                                                <span>{{ "now"|date("d/m/Y") }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="user-info mb-4">
+                                        <h6 class="mb-3">Informations utilisateur</h6>
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            Vous êtes connecté en tant qu'<strong>utilisateur #1</strong>. Votre inscription sera enregistrée avec ces informations.
+                                        </div>
+                                    </div>
+                                    
+                                    <form id="inscriptionForm{{ formation.id }}" method="post" action="{{ path('app_inscription_create', {'id': formation.id}) }}">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="confirmInscription{{ formation.id }}" required>
+                                            <label class="form-check-label" for="confirmInscription{{ formation.id }}">
+                                                Je confirme vouloir m'inscrire à cette formation
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between mt-4">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn btn-primary">Confirmer l'inscription</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info py-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>Aucune formation disponible pour le moment.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Pourquoi choisir FreelanceConnect ?</h2>
+            <p>Notre plateforme offre de nombreux avantages pour les freelances et les entreprises</p>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <h3 class="feature-title">Formations certifiantes</h3>
+                    <p class="feature-description">Obtenez des certifications reconnues par les professionnels du secteur.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-laptop"></i>
+                    </div>
+                    <h3 class="feature-title">Formations à distance</h3>
+                    <p class="feature-description">Suivez nos formations depuis chez vous, à votre rythme.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h3 class="feature-title">Suivi personnalisé</h3>
+                    <p class="feature-description">Bénéficiez d'un accompagnement sur mesure tout au long de votre parcours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h3 class="footer-title">FreelanceConnect</h3>
+                <p>La plateforme qui connecte les meilleurs talents freelance avec des entreprises à la recherche d'expertise.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h3 class="footer-title">Liens rapides</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                    <li><a href="{{ path('app_formations') }}">Formations</a></li>
+                    <li><a href="#">Freelances</a></li>
+                    <li><a href="#">Entreprises</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4 mb-4">
+                <h3 class="footer-title">Nos services</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Développement Web</a></li>
+                    <li><a href="#">Design & Création</a></li>
+                    <li><a href="#">Marketing Digital</a></li>
+                    <li><a href="#">Rédaction & Traduction</a></li>
+                    <li><a href="#">Conseil & Formation</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4 mb-4">
+                <h3 class="footer-title">Contact</h3>
+                <ul class="footer-links">
+                    <li><i class="bi bi-geo-alt me-2"></i> 123 Avenue des Freelances, 75000 Paris</li>
+                    <li><i class="bi bi-envelope me-2"></i> contact@freelanceconnect.fr</li>
+                    <li><i class="bi bi-telephone me-2"></i> +33 1 23 45 67 89</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {{ "now"|date("Y") }} FreelanceConnect. Tous droits réservés.</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation des modals Bootstrap
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(function(modal) {
+            new bootstrap.Modal(modal);
+        });
+        
+        // Afficher les messages flash
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                alert('{{ label|capitalize }}: {{ message }}');
+            {% endfor %}
+        {% endfor %}
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord - FreelanceConnect{% endblock %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+{% block breadcrumb %}Tableau de bord{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .stat-card {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: none;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+    }
+    
+    .stat-card .card-body {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-card .stat-icon {
+        font-size: 3rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        z-index: 0;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-label {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        color: white;
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        color: white;
+    }
+    
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #17a2b8, #0dcaf0) !important;
+        color: white;
+    }
+    
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+        color: white;
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+    }
+    
+    /* Styles pour les tableaux */
+    .dashboard-table {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    .dashboard-table thead th {
+        background-color: var(--gray-100);
+        border-bottom: 2px solid var(--gray-200);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .dashboard-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .dashboard-table tbody tr:hover {
+        background-color: rgba(var(--primary-rgb), 0.05);
+    }
+    
+    .dashboard-table .btn-modern-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-right: 0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .dashboard-table .btn-modern-action:hover {
+        transform: translateY(-2px);
+    }
+    
+    .nav-tabs .nav-link {
+        color: var(--gray-700);
+        font-weight: 500;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0;
+        border: none;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        border-bottom-color: var(--primary-color);
+    }
+    
+    .nav-tabs .nav-link:hover:not(.active) {
+        border-bottom-color: var(--gray-300);
+    }
+    
+    .highlight {
+        background-color: rgba(255, 193, 7, 0.3);
+        font-weight: bold;
+        padding: 0 2px;
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+            <div class="card stat-card bg-gradient-primary">
+                <div class="card-body">
+                    <i class="bi bi-mortarboard stat-icon"></i>
+                    <div class="stat-value">{{ statsFormations.total }}</div>
+                    <div class="stat-label">Formations</div>
+                    <div class="stat-text">Formations disponibles</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+            <div class="card stat-card bg-gradient-success">
+                <div class="card-body">
+                    <i class="bi bi-people stat-icon"></i>
+                    <div class="stat-value">{{ statsFormations.placesTotal }}</div>
+                    <div class="stat-label">Places disponibles</div>
+                    <div class="stat-text">Capacité totale</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+            <div class="card stat-card bg-gradient-info">
+                <div class="card-body">
+                    <i class="bi bi-currency-euro stat-icon"></i>
+                    <div class="stat-value">{{ statsFormations.prixMoyen|number_format(2, ',', ' ') }} €</div>
+                    <div class="stat-label">Prix moyen</div>
+                    <div class="stat-text">Par formation</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card bg-gradient-warning">
+                <div class="card-body">
+                    <i class="bi bi-person-check stat-icon"></i>
+                    <div class="stat-value">{{ statsInscriptions.total }}</div>
+                    <div class="stat-label">Inscriptions</div>
+                    <div class="stat-text">{{ statsInscriptions.aujourdhui }} aujourd'hui</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableaux complets -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white p-0 border-0">
+            <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="formations-tab" data-bs-toggle="tab" data-bs-target="#formations-content" type="button" role="tab" aria-controls="formations-content" aria-selected="true">
+                        <i class="bi bi-mortarboard me-2"></i>Formations
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="inscriptions-tab" data-bs-toggle="tab" data-bs-target="#inscriptions-content" type="button" role="tab" aria-controls="inscriptions-content" aria-selected="false">
+                        <i class="bi bi-person-check me-2"></i>Inscriptions
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-0">
+            <div class="tab-content" id="dashboardTabsContent">
+                <!-- Tableau des formations -->
+                <div class="tab-pane fade show active" id="formations-content" role="tabpanel" aria-labelledby="formations-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover dashboard-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Description</th>
+                                    <th>Durée</th>
+                                    <th>Places</th>
+                                    <th>Prix</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if formations|length > 0 %}
+                                    {% for formation in formations %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary">{{ formation.getPublicationId() }}</span>
+                                            </td>
+                                            <td class="fw-bold">{{ formation.nom }}</td>
+                                            <td>
+                                                {% if formation.description %}
+                                                    {{ formation.description|slice(0, 50) }}{% if formation.description|length > 50 %}...{% endif %}
+                                                {% else %}
+                                                    <em class="text-muted">Aucune description</em>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-soft-info rounded-pill">{{ formation.duree }}h</span>
+                                            </td>
+                                            <td>
+                                                {% if formation.nombrePlaces > 10 %}
+                                                    <span class="badge badge-soft-success rounded-pill">{{ formation.nombrePlaces }} places</span>
+                                                {% elseif formation.nombrePlaces > 0 %}
+                                                    <span class="badge badge-soft-warning rounded-pill">{{ formation.nombrePlaces }} places</span>
+                                                {% else %}
+                                                    <span class="badge badge-soft-danger rounded-pill">Complet</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">{{ formation.prix|number_format(2, ',', ' ') }} €</div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center">
+                                                    <a href="{{ path('admin_formation_show', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-info" title="Voir les détails">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_formation_edit', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-warning" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_formation_export_single_pdf', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-primary" title="Exporter PDF">
+                                                        <i class="bi bi-file-pdf"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="text-muted mb-3">Aucune formation disponible</div>
+                                            <a href="{{ path('admin_formation_new') }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-plus-circle me-1"></i>Ajouter une formation
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">{{ formations|length }} formation(s) au total</span>
+                        <a href="{{ path('admin_formation_index') }}" class="btn btn-sm btn-primary">
+                            Voir toutes les formations
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Tableau des inscriptions -->
+                <div class="tab-pane fade" id="inscriptions-content" role="tabpanel" aria-labelledby="inscriptions-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover dashboard-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Utilisateur</th>
+                                    <th>Formation</th>
+                                    <th>Date d'inscription</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if inscriptions|length > 0 %}
+                                    {% for inscription in inscriptions %}
+                                        <tr>
+                                            <td>{{ inscription.id }}</td>
+                                            <td>
+                                                <span class="badge bg-info">Utilisateur #{{ inscription.userId }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ inscription.formationId }}</span>
+                                            </td>
+                                            <td>
+                                                {{ inscription.dateInscription|date('d/m/Y H:i') }}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center">
+                                                    <a href="{{ path('admin_inscription_show', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-info" title="Voir les détails">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_inscription_edit', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-warning" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_inscription_export_single_pdf', {'id': inscription.id}) }}" class="btn btn-modern-action btn-outline-primary" title="Exporter PDF">
+                                                        <i class="bi bi-file-pdf"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="text-muted mb-3">Aucune inscription disponible</div>
+                                            <a href="{{ path('admin_inscription_new') }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-plus-circle me-1"></i>Ajouter une inscription
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">{{ inscriptions|length }} inscription(s) au total</span>
+                        <a href="{{ path('admin_inscription_index') }}" class="btn btn-sm btn-primary">
+                            Voir toutes les inscriptions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

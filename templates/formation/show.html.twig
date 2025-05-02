@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la formation{% endblock %}
+
+{% block body %}
+    <h1>Détail de la formation</h1>
+
+    <ul>
+        <li><strong>ID :</strong> {{ formation.id }}</li>
+        <li><strong>Publication ID :</strong> {{ formation.publicationId }}</li>
+        <li><strong>Durée :</strong> {{ formation.duree }}</li>
+        <li><strong>Nombre de places :</strong> {{ formation.nombrePlaces }}</li>
+        <li><strong>Prix :</strong> {{ formation.prix }} €</li>
+    </ul>
+
+    <a href="{{ path('app_formation_edit', {'id': formation.id}) }}">Modifier</a> |
+    <a href="{{ path('app_formation_index') }}">Retour à la liste</a>
+{% endblock %}

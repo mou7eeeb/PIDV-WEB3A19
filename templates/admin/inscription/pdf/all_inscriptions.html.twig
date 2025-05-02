@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des inscriptions</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #15222b;
+            margin: 0;
+            padding: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #666;
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+            text-align: left;
+            padding: 10px;
+        }
+        td {
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .badge-primary {
+            background-color: #cfe2ff;
+            color: #0d6efd;
+        }
+        .badge-info {
+            background-color: #cff4fc;
+            color: #0dcaf0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Liste des inscriptions</h1>
+        <p>Généré le {{ "now"|date("d/m/Y à H:i") }}</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID Utilisateur</th>
+                <th>ID Formation</th>
+                <th>Date d'inscription</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inscription in inscriptions %}
+                <tr>
+                    <td>{{ inscription.id }}</td>
+                    <td>
+                        <span class="badge badge-primary">{{ inscription.userId }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">{{ inscription.formationId }}</span>
+                    </td>
+                    <td>{{ inscription.dateInscription ? inscription.dateInscription|date('d/m/Y') : '' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Total des inscriptions : {{ inscriptions|length }}</p>
+        <p>Document généré automatiquement - {{ "now"|date("d/m/Y") }}</p>
+    </div>
+</body>
+</html>

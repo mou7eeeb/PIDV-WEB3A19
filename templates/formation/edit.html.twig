@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une formation{% endblock %}
+
+{% block body %}
+    <h1>Modifier la formation</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.publication_id) }}
+        {{ form_row(form.duree) }}
+        {{ form_row(form.nombre_places) }}
+        {{ form_row(form.prix) }}
+        <button class="btn">Mettre à jour</button>
+    {{ form_end(form) }}
+
+    <form method="post"
+          action="{{ path('app_formation_delete', {'id': formation.id}) }}"
+          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');">
+        <input type="hidden" name="_token"
+               value="{{ csrf_token('delete' ~ formation.id) }}">
+        <button class="btn btn-danger">Supprimer</button>
+    </form>
+
+    <a href="{{ path('app_formation_index') }}">Retour à la liste</a>
+{% endblock %}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Détails de la formation - {{ formation.nom }}</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #15222b;
+            margin: 0;
+            padding: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #666;
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        .card-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            margin: 0;
+            color: #15222b;
+            font-size: 18px;
+        }
+        .info-row {
+            margin-bottom: 15px;
+            display: block;
+        }
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 150px;
+            color: #555;
+        }
+        .info-value {
+            display: inline-block;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .badge-primary {
+            background-color: #cfe2ff;
+            color: #0d6efd;
+        }
+        .badge-info {
+            background-color: #cff4fc;
+            color: #0dcaf0;
+        }
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .description-box {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #6c757d;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Détails de la formation</h1>
+        <p>Généré le {{ "now"|date("d/m/Y à H:i") }}</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{{ formation.nom }}</h2>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">ID:</span>
+            <span class="info-value">{{ formation.id }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Publication ID:</span>
+            <span class="info-value">
+                <span class="badge badge-primary">{{ formation.publicationId }}</span>
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Durée:</span>
+            <span class="info-value">{{ formation.duree }} heures</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Places disponibles:</span>
+            <span class="info-value">
+                {% if formation.nombrePlaces > 10 %}
+                    <span class="badge badge-success">{{ formation.nombrePlaces }} places</span>
+                {% elseif formation.nombrePlaces > 0 %}
+                    <span class="badge badge-warning">{{ formation.nombrePlaces }} places</span>
+                {% else %}
+                    <span class="badge badge-danger">Complet</span>
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Prix:</span>
+            <span class="info-value">{{ formation.prix|number_format(2, ',', ' ') }} €</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Prix par heure:</span>
+            <span class="info-value">
+                {% if formation.duree > 0 %}
+                    {{ (formation.prix / formation.duree)|number_format(2, ',', ' ') }} €/h
+                {% else %}
+                    N/A
+                {% endif %}
+            </span>
+        </div>
+        
+        {% if formation.description %}
+            <div class="description-box">
+                <h3>Description</h3>
+                <p>{{ formation.description }}</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="footer">
+        <p>Document généré automatiquement - {{ "now"|date("d/m/Y") }}</p>
+    </div>
+</body>
+</html>

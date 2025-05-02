@@ -1,0 +1,157 @@
+{% if formations|length > 0 %}
+    {% if searchTerm is defined and searchTerm is not empty %}
+        <div class="search-results mb-3">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            {{ formations|length }} résultat{% if formations|length > 1 %}s{% endif %} trouvé{% if formations|length > 1 %}s{% endif %} pour <span class="search-highlight">{{ searchTerm }}</span>
+        </div>
+    {% endif %}
+    <div class="table-responsive">
+        <table class="table table-hover" id="formationsTable" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Publication ID</th>
+                    <th>Nom formation</th>
+                    <th>Description</th>
+                    <th>Durée</th>
+                    <th>Places</th>
+                    <th>Prix</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for formation in formations %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary me-2">
+                                {{ formation.publicationId }}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold">
+                            {% if searchTerm is defined and searchTerm is not empty and formation.nom is defined and formation.nom is not empty %}
+                                {{ formation.nom|replace({(searchTerm): '<mark>' ~ searchTerm ~ '</mark>'})|raw }}
+                            {% else %}
+                                {{ formation.nom }}
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if formation.description %}
+                            {% if searchTerm is defined and searchTerm is not empty %}
+                                {% set excerpt = formation.description|slice(0, 50) %}
+                                {{ excerpt|replace({(searchTerm): '<mark>' ~ searchTerm ~ '</mark>'})|raw }}{% if formation.description|length > 50 %}...{% endif %}
+                            {% else %}
+                                {{ formation.description|slice(0, 50) }}{% if formation.description|length > 50 %}...{% endif %}
+                            {% endif %}
+                        {% else %}
+                            <em class="text-muted">Aucune description</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-soft-info rounded-pill">{{ formation.duree }}h</span>
+                    </td>
+                    <td>
+                        {% if formation.nombrePlaces > 10 %}
+                            <span class="badge badge-soft-success rounded-pill">{{ formation.nombrePlaces }} places</span>
+                        {% elseif formation.nombrePlaces > 0 %}
+                            <span class="badge badge-soft-warning rounded-pill">{{ formation.nombrePlaces }} places</span>
+                        {% else %}
+                            <span class="badge badge-soft-danger rounded-pill">Complet</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-bold">{{ formation.prix|number_format(2, ',', ' ') }} €</div>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center table-actions">
+                            <a href="{{ path('admin_formation_show', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-info" title="Voir les détails">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ path('admin_formation_edit', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-warning" title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{{ path('admin_formation_export_single_pdf', {'id': formation.id}) }}" class="btn btn-modern-action btn-outline-primary" title="Exporter PDF">
+                                <i class="bi bi-file-pdf"></i>
+                            </a>
+                            <button type="button" class="btn btn-modern-action btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ formation.id }}" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Modal de confirmation de suppression -->
+                        <div class="modal fade" id="deleteModal{{ formation.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ formation.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ formation.id }}">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            Confirmer la suppression
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Êtes-vous sûr de vouloir supprimer cette formation ?</p>
+                                        <div class="alert alert-warning">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0">
+                                                    <i class="bi bi-info-circle-fill fs-4"></i>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="alert-heading mb-1">Détails de la formation</h6>
+                                                    <p class="mb-0">
+                                                        <strong>Publication ID:</strong> {{ formation.publicationId }}<br>
+                                                        {% if formation.nom %}<strong>Nom:</strong> {{ formation.nom }}<br>{% endif %}
+                                                        <strong>Prix:</strong> {{ formation.prix|number_format(2, ',', ' ') }} €<br>
+                                                        <strong>Places:</strong> {{ formation.nombrePlaces }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                                        <form method="post" action="{{ path('admin_formation_delete', {'id': formation.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formation.id) }}">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="bi bi-trash me-1"></i>Supprimer définitivement
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="avatar-lg mx-auto mb-4">
+            <div class="avatar-title bg-light text-primary rounded-circle">
+                <i class="bi bi-search fs-1"></i>
+            </div>
+        </div>
+        <h5>Aucune formation trouvée</h5>
+        <p class="text-muted">
+            {% if searchTerm is defined and searchTerm is not empty %}
+                Aucune formation ne correspond à votre recherche "{{ searchTerm }}".
+                <br>Essayez avec d'autres termes ou consultez toutes les formations.
+            {% else %}
+                Commencez par créer votre première formation pour voir les données ici.
+            {% endif %}
+        </p>
+        {% if searchTerm is defined and searchTerm is not empty %}
+            <a href="{{ path('admin_formation_index') }}" class="btn btn-modern btn-modern-info mt-3">
+                <i class="bi bi-arrow-left me-2"></i>Voir toutes les formations
+            </a>
+        {% else %}
+            <a href="{{ path('admin_formation_new') }}" class="btn btn-modern btn-modern-primary mt-3">
+                <i class="bi bi-plus-circle me-2"></i>Créer une nouvelle formation
+            </a>
+        {% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,286 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails de l'inscription - FreelanceConnect{% endblock %}
+
+{% block page_title %}Détails de l'inscription{% endblock %}
+{% block breadcrumb %}Détails{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+    }
+    
+    .card-header h5 {
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .card-footer {
+        background-color: transparent;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+    }
+    
+    .action-buttons .btn {
+        margin-left: 0.5rem;
+    }
+    
+    .btn-delete {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: transparent;
+    }
+    
+    .btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .modal-danger .modal-header {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .modal-danger .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    
+    .modal-body-icon {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .detail-header {
+        background-color: rgba(21, 34, 43, 0.95);
+        color: white;
+        padding: 1rem;
+        font-weight: 600;
+    }
+    
+    .detail-content {
+        padding: 1.5rem;
+        background-color: white;
+    }
+    
+    .detail-row {
+        margin-bottom: 1.5rem;
+    }
+    
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+        background-color: var(--gray-100);
+        border-radius: var(--border-radius-sm);
+    }
+    
+    .detail-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    
+    .badge-primary {
+        background-color: rgba(79, 134, 247, 0.15);
+        color: var(--primary-color);
+    }
+    
+    .badge-success {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+    
+    .badge-info {
+        background-color: rgba(23, 162, 184, 0.15);
+        color: #17a2b8;
+    }
+    
+    .badge-warning {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #856404;
+    }
+    
+    .badge-danger {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">
+                            <i class="bi bi-calendar-check me-2 text-primary"></i>
+                            Détails de l'inscription
+                        </h5>
+                        <p class="text-muted mb-0">{{ inscription.dateInscription|date('d/m/Y') }}</p>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="{{ path('admin_inscription_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Retour à la liste
+                        </a>
+                        <a href="{{ path('admin_inscription_edit', {'id': inscription.id}) }}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil me-1"></i> Modifier
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="detail-card mb-4">
+                        <div class="detail-header">
+                            <i class="bi bi-info-circle me-2"></i>Informations générales
+                        </div>
+                        <div class="detail-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Formation</div>
+                                        <div class="detail-value">{{ inscription.formationId }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Utilisateur</div>
+                                        <div class="detail-value">{{ inscription.userId }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card mb-4">
+                        <div class="detail-header">
+                            <i class="bi bi-calendar-event me-2"></i>Détails de l'inscription
+                        </div>
+                        <div class="detail-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Date d'inscription</div>
+                                        <div class="detail-value">
+                                            <span class="detail-badge badge-info">{{ inscription.dateInscription|date('d/m/Y') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Statut</div>
+                                        <div class="detail-value">
+                                            <span class="detail-badge badge-success">Confirmée</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-header">
+                            <i class="bi bi-file-earmark-text me-2"></i>Notes
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-row">
+                                <div class="detail-label">Commentaires</div>
+                                <div class="detail-value">
+                                    <p class="mb-0">Aucune note disponible pour cette inscription.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted"><i class="bi bi-clock-history me-1"></i>Dernière modification: {{ "now"|date("d/m/Y H:i") }}</span>
+                    </div>
+                    <button type="button" class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash me-1"></i> Supprimer cette inscription
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal de confirmation de suppression -->
+            <div class="modal fade modal-danger" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Confirmer la suppression
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="modal-body-icon">
+                                <i class="bi bi-trash-fill"></i>
+                            </div>
+                            <h5 class="mb-3">Êtes-vous sûr de vouloir supprimer cette inscription ?</h5>
+                            <p class="text-muted mb-4">Cette action est irréversible et supprimera définitivement toutes les données associées à cette inscription.</p>
+                            
+                            <div class="alert alert-warning">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-info-circle-fill fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3 text-start">
+                                        <h6 class="alert-heading mb-1">Détails de l'inscription</h6>
+                                        <p class="mb-0">
+                                            <strong>Formation:</strong> {{ inscription.formationId }}<br>
+                                            <strong>Utilisateur:</strong> {{ inscription.userId }}<br>
+                                            <strong>Date:</strong> {{ inscription.dateInscription|date('d/m/Y') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-1"></i>Annuler
+                            </button>
+                            <form method="post" action="{{ path('admin_inscription_delete', {'id': inscription.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ inscription.id) }}">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash me-1"></i>Supprimer définitivement
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
