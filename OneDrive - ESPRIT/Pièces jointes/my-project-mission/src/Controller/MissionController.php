@@ -35,6 +35,7 @@ class MissionController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Mission créée avec succès');
+            return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('mission/new.html.twig', [
