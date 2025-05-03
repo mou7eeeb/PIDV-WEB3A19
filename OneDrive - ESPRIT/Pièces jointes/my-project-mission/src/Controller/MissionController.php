@@ -40,7 +40,6 @@ class MissionController extends AbstractController
 
         return $this->render('mission/new.html.twig', [
             'mission' => $mission,
-            'form' => $form->createView(),
         ]);
     }
 
