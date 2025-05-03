@@ -77,7 +77,6 @@ class MissionController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$mission->getId(), $request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
-            $this->addFlash('success', 'Mission supprimée avec succès');
         }
 
         return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
