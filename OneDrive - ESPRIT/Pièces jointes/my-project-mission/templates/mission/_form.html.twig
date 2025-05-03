@@ -1,0 +1,92 @@
+{{ form_start(form, {'attr': {'class': 'form-horizontal needs-validation'}}) }}
+
+    {# Titre #}
+    <div class="form-group row mb-4">
+        {{ form_label(form.titre, null, {'label_attr': {'class': 'col-sm-3 col-form-label'}}) }}
+        <div class="col-sm-9">
+            {{ form_widget(form.titre) }}
+            {{ form_errors(form.titre) }}
+            {{ form_help(form.titre) }}
+        </div>
+    </div>
+
+    {# Description #}
+    <div class="form-group row mb-4">
+        {{ form_label(form.description, null, {'label_attr': {'class': 'col-sm-3 col-form-label'}}) }}
+        <div class="col-sm-9">
+            {{ form_widget(form.description) }}
+            {{ form_errors(form.description) }}
+            {{ form_help(form.description) }}
+        </div>
+    </div>
+
+    {# Compétence et Date #}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="form-group row">
+                {{ form_label(form.competance, null, {'label_attr': {'class': 'col-sm-6 col-form-label'}}) }}
+                <div class="col-sm-6">
+                    {{ form_widget(form.competance) }}
+                    {{ form_errors(form.competance) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group row">
+                {{ form_label(form.datePub, null, {'label_attr': {'class': 'col-sm-6 col-form-label'}}) }}
+                <div class="col-sm-6">
+                    {{ form_widget(form.datePub) }}
+                    {{ form_errors(form.datePub) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Durée et Budget #}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="form-group row">
+                {{ form_label(form.duree, null, {'label_attr': {'class': 'col-sm-6 col-form-label'}}) }}
+                <div class="col-sm-6">
+                    {{ form_widget(form.duree) }}
+                    {{ form_errors(form.duree) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group row">
+                {{ form_label(form.budget, null, {'label_attr': {'class': 'col-sm-6 col-form-label'}}) }}
+                <div class="col-sm-6">
+                    {{ form_widget(form.budget) }}
+                    {{ form_errors(form.budget) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Questions #}
+    <div class="form-group row mb-4">
+        {{ form_label(form.questions, null, {'label_attr': {'class': 'col-sm-3 col-form-label'}}) }}
+        <div class="col-sm-9">
+            {{ form_widget(form.questions) }}
+            {{ form_errors(form.questions) }}
+        </div>
+    </div>
+
+    {# Entreprise #}
+    <div class="form-group row mb-4">
+        {{ form_label(form.nomEntreprise, null, {'label_attr': {'class': 'col-sm-3 col-form-label'}}) }}
+        <div class="col-sm-9">
+            {{ form_widget(form.nomEntreprise) }}
+            {{ form_errors(form.nomEntreprise) }}
+        </div>
+    </div>
+
+    {# Bouton de soumission #}
+    <div class="form-group row">
+        <div class="col-sm-9 offset-sm-3">
+            {{ form_widget(form.submit) }}
+        </div>
+    </div>
+
+{{ form_end(form) }}

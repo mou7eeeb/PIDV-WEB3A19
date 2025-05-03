@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Candidature{% endblock %}
+{% block page_title %}Modification Candidature{% endblock %}
+
+{% block body %}
+    {{ include('candidature/_form.html.twig', {'edit_mode': true}) }}
+{% endblock %}

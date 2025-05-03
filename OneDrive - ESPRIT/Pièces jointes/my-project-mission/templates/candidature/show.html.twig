@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Candidature #{{ candidature.id }}{% endblock %}
+
+{% block body %}
+    <h1>Candidature #{{ candidature.id }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ candidature.id }}</td>
+            </tr>
+            <tr>
+                <th>User ID</th>
+                <td>{{ candidature.userId }}</td>
+            </tr>
+            <tr>
+                <th>Mission ID</th>
+                <td>{{ candidature.missionId }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td>
+                    {% if candidature.image %}
+                        <img src="{{ asset('uploads/candidatures/' ~ candidature.image) }}" width="200">
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Réponses</th>
+                <td>{{ candidature.reponseQuestions }}</td>
+            </tr>
+            <tr>
+                <th>Lettre motivation</th>
+                <td>{{ candidature.lettreMotivation }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_candidature_index') }}" class="btn btn-secondary">Retour</a>
+    <a href="{{ path('app_candidature_edit', {'id': candidature.id}) }}" class="btn btn-primary">Modifier</a>
+
+    {{ include('candidature/_delete_form.html.twig') }}
+{% endblock %}

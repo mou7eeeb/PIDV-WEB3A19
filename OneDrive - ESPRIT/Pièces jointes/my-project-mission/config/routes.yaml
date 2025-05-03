@@ -1,0 +1,49 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+
+
+
+test_adminlte:
+    path: /test
+    controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::template
+    defaults:
+        template: 'test.html.twig'
+
+
+    # Freelancer
+freelancer_missions:
+    path: /freelancer/missions
+    controller: App\Controller\FreelancerController::missions
+
+freelancer_mission_show:
+    path: /freelancer/mission/{id}
+    controller: App\Controller\FreelancerController::showMission
+
+freelancer_mission_postuler:
+    path: /freelancer/mission/{id}/postuler
+    controller: App\Controller\FreelancerController::postuler
+
+freelancer_candidatures:
+    path: /freelancer/mes-candidatures
+    controller: App\Controller\FreelancerController::mesCandidatures
+
+# Employeur
+employeur_missions:
+    path: /employeur/missions
+    controller: App\Controller\EmployeurController::missions
+
+employeur_mission_new:
+    path: /employeur/mission/new
+    controller: App\Controller\EmployeurController::newMission
+
+employeur_mission_edit:
+    path: /employeur/mission/{id}/edit
+    controller: App\Controller\EmployeurController::editMission
+
+employeur_mission_delete:
+    path: /employeur/mission/{id}/delete
+    controller: App\Controller\EmployeurController::deleteMission

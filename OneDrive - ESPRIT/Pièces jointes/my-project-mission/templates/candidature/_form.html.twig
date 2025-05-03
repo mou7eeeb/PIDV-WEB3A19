@@ -1,0 +1,119 @@
+{{ form_start(form, {'attr': {'class': 'form-horizontal needs-validation', 'novalidate': 'novalidate'}}) }}
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">{{ edit_mode ? 'Modifier' : 'Nouvelle' }} Candidature</h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.userId, "ID Utilisateur *", {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.userId, {'attr': {'class': 'form-control' ~ (form.userId.vars.errors|length ? ' is-invalid' : '')}}) }}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.userId) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.missionId, "ID Mission *", {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.missionId, {'attr': {'class': 'form-control' ~ (form.missionId.vars.errors|length ? ' is-invalid' : '')}}) }}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.missionId) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form_label(form.lettreMotivation, "Lettre de motivation *", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.lettreMotivation, {
+                'attr': {
+                    'class': 'form-control' ~ (form.lettreMotivation.vars.errors|length ? ' is-invalid' : ''),
+                    'rows': 5
+                }
+            }) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.lettreMotivation) }}
+            </div>
+            <small class="form-text text-muted">100 à 2000 caractères requis</small>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form_label(form.reponseQuestions, "Réponses aux questions", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.reponseQuestions, {
+                'attr': {
+                    'class': 'form-control' ~ (form.reponseQuestions.vars.errors|length ? ' is-invalid' : ''),
+                    'rows': 5
+                }
+            }) }}
+            <div class="invalid-feedback">
+                {{ form_errors(form.reponseQuestions) }}
+            </div>
+            <small class="form-text text-muted">Optionnel (max 2000 caractères)</small>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form_label(form.imageFile, "Photo de profil", {'label_attr': {'class': 'form-label'}}) }}
+            <div class="custom-file">
+                {{ form_widget(form.imageFile, {
+                    'attr': {
+                        'class': 'custom-file-input' ~ (form.imageFile.vars.errors|length ? ' is-invalid' : '')
+                    }
+                }) }}
+                <label class="custom-file-label" for="candidature_imageFile">Choisir un fichier</label>
+            </div>
+            <div class="invalid-feedback">
+                {{ form_errors(form.imageFile) }}
+            </div>
+            <small class="form-text text-muted">Formats acceptés: JPG/PNG (max 2Mo)</small>
+            
+            {% if edit_mode and form.vars.value.image %}
+                <div class="mt-2">
+                    <img src="{{ asset('uploads/candidatures/' ~ form.vars.value.image) }}" alt="Photo actuelle" class="img-thumbnail" width="150">
+                    <p class="text-muted small mt-1">Photo actuelle</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-footer text-right">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> {{ edit_mode ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
+        <a href="{{ path('app_candidature_index') }}" class="btn btn-default">
+            <i class="fas fa-times"></i> Annuler
+        </a>
+    </div>
+</div>
+
+{{ form_end(form) }}
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    // Affichage du nom du fichier sélectionné
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
+
+    // Validation Bootstrap
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+});
+</script>
+{% endblock %}
