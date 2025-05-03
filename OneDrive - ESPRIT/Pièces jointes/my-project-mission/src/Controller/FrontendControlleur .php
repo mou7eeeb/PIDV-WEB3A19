@@ -44,6 +44,7 @@ class FrontendController extends AbstractController
 
         return $this->render('frontend/candidature/new.html.twig', [
             'form' => $form->createView(),
+            'mission' => $mission,
         ]);
     }
 }
