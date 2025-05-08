@@ -27,7 +27,7 @@ Installation
 Clonez le repository :
 
 bash
-git clone https://github.com/PIDV-WEB3A19-Mouheb-User/PIDV-WEB3A19-Mouheb-User.git
+git clone https://github.com/mou7eeeb/PIDV-WEB3A19.git
 cd PIDV-WEB3A19-Mouheb-User
 Configurez l'environnement :
 
